@@ -1,31 +1,36 @@
+"""
+Optik — Application Entry Point
+Version: 0.1.0
+
+Features:
+    - Application initialization
+    - Application metadata
+    - Default font configuration
+    - Persistent Light/Dark theme support
+"""
+
 import sys
 
-from pathlib import Path
-
+from PySide6.QtGui import QFont
 from PySide6.QtWidgets import QApplication
 
 from app.main_window import MainWindow
 
 
 def main() -> int:
+    """Initialize and launch Optik."""
 
     app = QApplication(sys.argv)
 
+    # Application metadata
+    app.setOrganizationName("Optik")
     app.setApplicationName("Optik")
     app.setApplicationVersion("0.1.0")
 
-    stylesheet_path = (
-        Path(__file__).resolve().parent
-        / "ui"
-        / "styles"
-        / "main.qss"
-    )
+    # Configure a valid point-sized font.
+    app.setFont(QFont("Segoe UI", 10))
 
-    if stylesheet_path.exists():
-        app.setStyleSheet(
-            stylesheet_path.read_text(encoding="utf-8")
-        )
-
+    # MainWindow loads the saved Light/Dark stylesheet.
     window = MainWindow()
     window.show()
 

@@ -2,17 +2,17 @@
 Optik — Main Window
 Version: 0.1.0
 
-Responsibilities:
-    - Application window
+Features:
     - Sidebar navigation
-    - Page management
     - Home dashboard navigation
-    - Application styling
+    - Reflection and refraction calculators
+    - Persistent Light/Dark themes
+    - Saved calculation defaults
 """
 
 from pathlib import Path
 
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -37,12 +37,14 @@ class MainWindow(QMainWindow):
         self.resize(1200, 800)
         self.setMinimumSize(900, 600)
 
+        self.settings = QSettings("Optik", "Optik")
+
         self._setup_ui()
         self._connect_signals()
         self._load_stylesheet()
 
     def _setup_ui(self):
-        """Create the main application layout."""
+        """Create the main application interface."""
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
@@ -76,11 +78,17 @@ class MainWindow(QMainWindow):
         main_layout.addWidget(self.stack, 1)
 
         self.stack.setCurrentWidget(self.home_page)
+        self.sidebar.set_active_page("home")
 
     def _connect_signals(self):
-        """Connect navigation controls."""
+        """Connect navigation and settings signals."""
 
-        # Home page feature buttons
+        # Sidebar navigation
+        self.sidebar.page_changed.connect(
+            self.change_page
+        )
+
+        # Home dashboard navigation
         self.home_page.reflection_card.open_button.clicked.connect(
             lambda: self.change_page("reflection")
         )
@@ -89,19 +97,24 @@ class MainWindow(QMainWindow):
             lambda: self.change_page("refraction")
         )
 
-        # Sidebar navigation
-        #
-        # This assumes Sidebar exposes a page_changed signal
-        # that emits a page name such as "reflection".
-        self.sidebar.page_changed.connect(self.change_page)
+        # Theme switching
+        self.settings_page.theme_changed.connect(
+            self.apply_theme
+        )
 
     def change_page(self, page_name: str):
-        """Switch to a registered application page."""
+        """Switch pages and synchronize the sidebar."""
 
         if page_name not in self.pages:
-            raise ValueError(f"Unknown page: {page_name}")
+            raise ValueError(
+                f"Unknown page: {page_name}"
+            )
 
-        self.stack.setCurrentWidget(self.pages[page_name])
+        self.stack.setCurrentWidget(
+            self.pages[page_name]
+        )
+
+        self.sidebar.set_active_page(page_name)
 
         if page_name == "reflection":
             self.reflection_page.load_defaults()
@@ -110,16 +123,44 @@ class MainWindow(QMainWindow):
             self.refraction_page.load_defaults()
 
     def _load_stylesheet(self):
-        """Load the application's QSS stylesheet."""
+        """Load the saved application theme."""
+
+        theme = self.settings.value(
+            "appearance/theme",
+            "Light",
+            type=str,
+        )
+
+        self.apply_theme(theme)
+
+    def apply_theme(self, theme: str):
+        """Apply the selected Light or Dark stylesheet."""
+
+        theme_files = {
+            "Light": "light.qss",
+            "Dark": "dark.qss",
+        }
+
+        stylesheet_name = theme_files.get(
+            theme,
+            "light.qss",
+        )
 
         stylesheet_path = (
             Path(__file__).resolve().parent.parent
             / "ui"
             / "styles"
-            / "main.qss"
+            / stylesheet_name
         )
 
-        if stylesheet_path.exists():
-            self.setStyleSheet(
-                stylesheet_path.read_text(encoding="utf-8")
+        if not stylesheet_path.is_file():
+            raise FileNotFoundError(
+                f"Theme stylesheet not found: "
+                f"{stylesheet_path}"
             )
+
+        stylesheet = stylesheet_path.read_text(
+            encoding="utf-8"
+        )
+
+        self.setStyleSheet(stylesheet)
