@@ -160,7 +160,7 @@ class SettingsPage(QWidget):
 
         about_text = QLabel(
             "Optik\n"
-            "Version 0.1.0\n\n"
+            "Version 0.2.0\n\n"
             "An open-source optics and photonics "
             "desktop application.\n\n"
             "Developed using Python, PySide6, "

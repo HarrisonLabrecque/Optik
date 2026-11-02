@@ -2,7 +2,7 @@
 
 All notable changes to Optik will be documented in this file.
 
-This project follows Semantic Versioning.
+This project follows [Semantic Versioning](https://semver.org/).
 
 ## [Unreleased]
 
@@ -11,10 +11,51 @@ This project follows Semantic Versioning.
 - Expanded scientific visualization capabilities.
 - Improvements to application settings.
 - Further numerical and graphical testing.
+- Additional optical simulation modules.
 
 ---
 
-## [0.1.0] — Initial Release Candidate
+## [0.2.0] — In Development
+
+### Planned
+
+**Thin Lens Optics**
+- Implement thin lens equation calculations.
+- Add converging and diverging lens support.
+- Calculate image distance and focal length.
+- Calculate image magnification and orientation.
+- Determine real and virtual image formation.
+- Implement optical input validation.
+
+**Scientific Visualization**
+- Develop interactive thin lens ray diagrams.
+- Visualize converging and diverging lenses.
+- Display focal points and principal optical axes.
+- Illustrate image formation and magnification.
+- Support dynamic updates when calculation inputs change.
+
+**Graphical Interface**
+- Create a dedicated Thin Lenses page.
+- Integrate the lens calculator with the main application.
+- Extend sidebar navigation.
+- Maintain compatibility with Light and Dark themes.
+
+**Testing**
+- Add thin lens physics unit tests.
+- Add magnification calculation tests.
+- Add lens visualization tests.
+- Extend GUI tests for the Thin Lenses page.
+- Verify numerical accuracy and boundary conditions.
+
+**Documentation**
+- Update the Software Requirements Specification.
+- Update the Software Design Document.
+- Update the User Guide.
+- Update the development documentation.
+
+---
+
+## [0.1.0] — Development Release
 
 ### Added
 
@@ -23,7 +64,8 @@ This project follows Semantic Versioning.
 - Implemented the main application window.
 - Added sidebar navigation.
 - Created Home, Reflection, Refraction, and Settings pages.
-- Implemented a dark-themed graphical interface.
+- Implemented Light and Dark application themes.
+- Added persistent application settings.
 
 **Optical Calculations**
 - Implemented the law of reflection.
@@ -40,6 +82,7 @@ This project follows Semantic Versioning.
 - Added calculation result displays.
 - Integrated total internal reflection status indicators.
 - Added scrollable calculator pages.
+- Implemented theme selection in Settings.
 
 **Scientific Visualization**
 - Implemented two-dimensional optical ray diagrams.
@@ -65,8 +108,10 @@ This project follows Semantic Versioning.
 
 Version 0.1.0 establishes the foundation for future Optik development.
 
-This release focuses on fundamental geometrical optics and introductory scientific visualization.
+This development release focuses on fundamental geometrical optics, introductory scientific visualization, and application architecture.
 
-Advanced optical simulations are outside the scope of this release.
+Advanced optical simulations remain outside the scope of v0.1.0.
 
-**Release status:** Pending final verification and publication.
+**Release status:** Development version tagged as `v0.1.0`.
+
+---

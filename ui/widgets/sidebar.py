@@ -124,7 +124,7 @@ class Sidebar(QWidget):
         # VERSION
         # ====================================================
 
-        self.version_label = QLabel("Version 0.1.0")
+        self.version_label = QLabel("Version 0.2.0")
         self.version_label.setObjectName("sidebarVersion")
         self.version_label.setAlignment(
             Qt.AlignmentFlag.AlignCenter
