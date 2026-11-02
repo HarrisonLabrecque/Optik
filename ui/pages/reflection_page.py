@@ -1,3 +1,15 @@
+"""
+Optik — Reflection Calculator
+Version: 0.1.0
+
+Features:
+    - Reflection calculation
+    - Saved default incident angle
+    - Interactive ray visualization
+    - Input validation
+"""
+
+from PySide6.QtCore import QSettings
 from PySide6.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -15,22 +27,31 @@ from visualization.ray_diagram import RayDiagram
 
 
 class ReflectionPage(QWidget):
-    """Reflection calculator with optical ray visualization."""
+    """Reflection calculator interface."""
 
     def __init__(self):
         super().__init__()
+
+        self.settings = QSettings("Optik", "Optik")
+
+        self._setup_ui()
+        self.load_defaults()
+        self.calculate()
+
+    def _setup_ui(self):
+        """Initialize the reflection calculator UI."""
 
         scroll_area = QScrollArea()
         scroll_area.setWidgetResizable(True)
         scroll_area.setFrameShape(QScrollArea.Shape.NoFrame)
 
         content = QWidget()
-        layout = QVBoxLayout(content)
 
+        layout = QVBoxLayout(content)
         layout.setContentsMargins(30, 25, 30, 25)
         layout.setSpacing(20)
 
-        # Page title
+        # Title
         title = QLabel("Reflection Calculator")
         title.setObjectName("pageTitle")
 
@@ -42,7 +63,7 @@ class ReflectionPage(QWidget):
         layout.addWidget(title)
         layout.addWidget(description)
 
-        # Input group
+        # Input
         input_group = QGroupBox("Incident Ray")
         input_layout = QHBoxLayout(input_group)
 
@@ -52,7 +73,6 @@ class ReflectionPage(QWidget):
         self.incident_angle.setRange(0.0, 90.0)
         self.incident_angle.setDecimals(2)
         self.incident_angle.setSingleStep(1.0)
-        self.incident_angle.setValue(45.0)
         self.incident_angle.setSuffix("°")
 
         input_layout.addWidget(input_label)
@@ -65,18 +85,17 @@ class ReflectionPage(QWidget):
             "Calculate Reflection"
         )
         self.calculate_button.setObjectName("primaryButton")
-
         self.calculate_button.clicked.connect(self.calculate)
 
         layout.addWidget(self.calculate_button)
 
-        # Result
+        # Results
         self.result_label = QLabel("Reflected Angle: --")
         self.result_label.setObjectName("resultLabel")
 
         layout.addWidget(self.result_label)
 
-        # Optical visualization
+        # Diagram
         diagram_group = QGroupBox("Optical Ray Diagram")
         diagram_layout = QVBoxLayout(diagram_group)
 
@@ -84,21 +103,28 @@ class ReflectionPage(QWidget):
         self.ray_diagram.setMinimumHeight(350)
 
         diagram_layout.addWidget(self.ray_diagram)
-
         layout.addWidget(diagram_group)
 
-        # Finalize scroll area
         scroll_area.setWidget(content)
 
         main_layout = QVBoxLayout(self)
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.addWidget(scroll_area)
 
-        # Display initial calculation
+    def load_defaults(self):
+        """Load the default incident angle from settings."""
+
+        angle = self.settings.value(
+            "calculations/angle",
+            45.0,
+            type=float,
+        )
+
+        self.incident_angle.setValue(angle)
         self.calculate()
 
     def calculate(self):
-        """Calculate and visualize the reflected angle."""
+        """Calculate and visualize reflection."""
 
         try:
             angle = self.incident_angle.value()
@@ -112,12 +138,10 @@ class ReflectionPage(QWidget):
             self.ray_diagram.draw_reflection(angle)
 
         except ValueError as error:
-            self.result_label.setText(
-                "Reflected Angle: --"
-            )
+            self.result_label.setText("Reflected Angle: --")
 
             QMessageBox.warning(
                 self,
                 "Invalid Input",
-                str(error)
+                str(error),
             )

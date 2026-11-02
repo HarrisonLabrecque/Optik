@@ -1,53 +1,83 @@
-/* =========================================
-   OPTIK — CALCULATOR COMPONENTS
-========================================= */
+/* ============================================================
+   OPTIK — HOME DASHBOARD
+   Version: 0.1.0
+   ============================================================ */
+
+QFrame#dashboardPanel {
+    background-color: #182338;
+    border: 1px solid #334155;
+    border-radius: 12px;
+}
+
+QFrame#featureCard {
+    background-color: #182338;
+    border: 1px solid #334155;
+    border-radius: 12px;
+}
+
+QFrame#featureCard:hover {
+    border: 1px solid #3b82f6;
+}
+
+QLabel#featureTitle {
+    color: #f8fafc;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+QLabel#featureDescription {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+QLabel#sectionTitle {
+    color: #f8fafc;
+    font-size: 19px;
+    font-weight: bold;
+}
+
+QLabel#bodyText {
+    color: #cbd5e1;
+    font-size: 13px;
+}
+
+QLabel#dashboardFooter {
+    color: #64748b;
+    font-size: 12px;
+    padding: 12px;
+}
+
+/* ============================================================
+   OPTIK — SETTINGS
+   ============================================================ */
 
 QGroupBox {
-    background-color: #111c30;
+    font-size: 14px;
+    font-weight: bold;
+    color: #f8fafc;
     border: 1px solid #334155;
-    border-radius: 8px;
+    border-radius: 10px;
     margin-top: 12px;
     padding: 15px;
-    font-weight: bold;
 }
 
 QGroupBox::title {
     subcontrol-origin: margin;
-    left: 15px;
-    padding: 0 8px;
-    color: #38bdf8;
+    left: 12px;
+    padding: 0 6px;
 }
 
+QComboBox,
 QDoubleSpinBox {
-    background-color: #1e293b;
-    border: 1px solid #475569;
-    border-radius: 6px;
-    padding: 8px;
+    background-color: #0f172a;
     color: #f8fafc;
-    min-width: 120px;
-}
-
-QDoubleSpinBox:focus {
-    border: 1px solid #38bdf8;
-}
-
-QPushButton#primaryButton {
-    background-color: #2563eb;
-    border: none;
-    border-radius: 6px;
-    padding: 12px;
-    color: white;
-    font-weight: bold;
-}
-
-QPushButton#primaryButton:hover {
-    background-color: #1d4ed8;
-}
-
-QLabel#resultLabel {
-    background-color: #111c30;
     border: 1px solid #334155;
     border-radius: 6px;
-    padding: 15px;
-    font-size: 15px;
+    padding: 7px;
+    min-height: 24px;
+}
+
+QComboBox:focus,
+QDoubleSpinBox:focus {
+    border: 1px solid #3b82f6;
 }
