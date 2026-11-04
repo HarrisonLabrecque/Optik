@@ -1,11 +1,13 @@
+
 """
 Optik — Main Window
-Version: 0.1.0
+Version: 0.2.0
 
 Features:
     - Sidebar navigation
     - Home dashboard navigation
     - Reflection and refraction calculators
+    - Thin lens calculator and ray diagrams
     - Persistent Light/Dark themes
     - Saved calculation defaults
 """
@@ -21,9 +23,11 @@ from PySide6.QtWidgets import (
 )
 
 from ui.widgets.sidebar import Sidebar
+
 from ui.pages.home_page import HomePage
 from ui.pages.reflection_page import ReflectionPage
 from ui.pages.refraction_page import RefractionPage
+from ui.pages.lens_page import LensPage
 from ui.pages.settings_page import SettingsPage
 
 
@@ -43,6 +47,10 @@ class MainWindow(QMainWindow):
         self._connect_signals()
         self._load_stylesheet()
 
+    # ============================================================
+    # USER INTERFACE
+    # ============================================================
+
     def _setup_ui(self):
         """Create the main application interface."""
 
@@ -53,21 +61,29 @@ class MainWindow(QMainWindow):
         main_layout.setContentsMargins(0, 0, 0, 0)
         main_layout.setSpacing(0)
 
-        # Sidebar
+        # --------------------------------------------------------
+        # SIDEBAR
+        # --------------------------------------------------------
+
         self.sidebar = Sidebar()
 
-        # Page stack
+        # --------------------------------------------------------
+        # PAGE STACK
+        # --------------------------------------------------------
+
         self.stack = QStackedWidget()
 
         self.home_page = HomePage()
         self.reflection_page = ReflectionPage()
         self.refraction_page = RefractionPage()
+        self.lens_page = LensPage()
         self.settings_page = SettingsPage()
 
         self.pages = {
             "home": self.home_page,
             "reflection": self.reflection_page,
             "refraction": self.refraction_page,
+            "lens": self.lens_page,
             "settings": self.settings_page,
         }
 
@@ -79,6 +95,10 @@ class MainWindow(QMainWindow):
 
         self.stack.setCurrentWidget(self.home_page)
         self.sidebar.set_active_page("home")
+
+    # ============================================================
+    # SIGNAL CONNECTIONS
+    # ============================================================
 
     def _connect_signals(self):
         """Connect navigation and settings signals."""
@@ -97,10 +117,18 @@ class MainWindow(QMainWindow):
             lambda: self.change_page("refraction")
         )
 
+        self.home_page.lens_card.open_button.clicked.connect(
+            lambda: self.change_page("lens")
+        )
+
         # Theme switching
         self.settings_page.theme_changed.connect(
             self.apply_theme
         )
+
+    # ============================================================
+    # NAVIGATION
+    # ============================================================
 
     def change_page(self, page_name: str):
         """Switch pages and synchronize the sidebar."""
@@ -121,6 +149,13 @@ class MainWindow(QMainWindow):
 
         elif page_name == "refraction":
             self.refraction_page.load_defaults()
+
+        elif page_name == "lens":
+            self.lens_page.load_defaults()
+
+    # ============================================================
+    # THEME MANAGEMENT
+    # ============================================================
 
     def _load_stylesheet(self):
         """Load the saved application theme."""
@@ -164,3 +199,8 @@ class MainWindow(QMainWindow):
         )
 
         self.setStyleSheet(stylesheet)
+
+        # Synchronize the Matplotlib lens diagram theme.
+        self.lens_page.update_theme(
+            theme.lower()
+        )

@@ -6,6 +6,7 @@ Features:
     - Home navigation
     - Reflection navigation
     - Refraction navigation
+    - Thin Lens navigation
     - Settings navigation
     - Active page highlighting
     - Qt signal-based navigation
@@ -95,9 +96,16 @@ class Sidebar(QWidget):
             "refraction",
         )
 
+        self.thin_lens_button = self._create_button(
+            "Thin Lens",
+            "lens",
+        )
+
         layout.addWidget(self.home_button)
         layout.addWidget(self.reflection_button)
         layout.addWidget(self.refraction_button)
+        layout.addWidget(self.thin_lens_button)
+        
 
         layout.addStretch()
 

@@ -7,51 +7,94 @@ This project follows [Semantic Versioning](https://semver.org/).
 ## [Unreleased]
 
 ### Planned
-- Additional optics and photonics calculations.
-- Expanded scientific visualization capabilities.
-- Improvements to application settings.
-- Further numerical and graphical testing.
-- Additional optical simulation modules.
+
+- Expand geometrical optics with mirror calculations in v0.3.0.
+- Add concave and convex mirror support.
+- Implement mirror image formation and magnification.
+- Develop mirror ray diagrams.
+- Expand scientific visualization and automated testing.
+- Continue improving application settings and usability.
 
 ---
 
-## [0.2.0] — In Development
+## [0.2.0] — Release Candidate
 
-### Planned
+### Added
 
 **Thin Lens Optics**
-- Implement thin lens equation calculations.
-- Add converging and diverging lens support.
-- Calculate image distance and focal length.
-- Calculate image magnification and orientation.
-- Determine real and virtual image formation.
-- Implement optical input validation.
+- Implemented the thin lens equation for image distance calculations.
+- Added support for converging and diverging lenses.
+- Added positive and negative focal length conventions.
+- Implemented image magnification calculations.
+- Added image height calculations.
+- Implemented image orientation classification.
+- Added enlarged, reduced, and unchanged image size classifications.
+- Added real and virtual image classification.
+- Added handling for image formation at infinity.
+- Expanded numerical input validation.
 
 **Scientific Visualization**
-- Develop interactive thin lens ray diagrams.
-- Visualize converging and diverging lenses.
-- Display focal points and principal optical axes.
-- Illustrate image formation and magnification.
-- Support dynamic updates when calculation inputs change.
+- Implemented two-dimensional thin lens ray diagrams.
+- Added visualization of converging and diverging lenses.
+- Added principal optical axes and focal points.
+- Added object and image representations.
+- Integrated lens ray diagrams with Matplotlib.
+- Added dynamic diagram updates following calculations.
+- Created a reusable `PlotManager` component.
+- Added light and dark plotting themes.
+- Added Matplotlib navigation toolbar support.
+- Added figure management and plot configuration utilities.
+- Added figure export functionality supporting PNG, JPG, JPEG, SVG, and PDF.
 
 **Graphical Interface**
-- Create a dedicated Thin Lenses page.
-- Integrate the lens calculator with the main application.
-- Extend sidebar navigation.
-- Maintain compatibility with Light and Dark themes.
+- Created the dedicated Thin Lens calculator page.
+- Integrated the Thin Lens page into the main application window.
+- Extended sidebar navigation to include Thin Lens.
+- Added a Thin Lens feature card to the Home dashboard.
+- Added focal length, object distance, and object height input controls.
+- Added calculation result displays for image distance, magnification, image height, orientation, and image size.
+- Integrated the lens ray diagram into the calculator interface.
+- Added persistent calculation defaults using `QSettings`.
+- Integrated plotting with Light and Dark application themes.
 
 **Testing**
-- Add thin lens physics unit tests.
-- Add magnification calculation tests.
-- Add lens visualization tests.
-- Extend GUI tests for the Thin Lenses page.
-- Verify numerical accuracy and boundary conditions.
+- Added thin lens physics unit tests.
+- Added magnification calculation tests.
+- Added lens diagram tests.
+- Added Plot Manager tests.
+- Updated Main Window tests for the new five-page navigation structure.
+- Added navigation coverage for the Thin Lens page and Home dashboard shortcut.
+- Expanded coverage of numerical calculations and boundary conditions.
 
-**Documentation**
-- Update the Software Requirements Specification.
-- Update the Software Design Document.
-- Update the User Guide.
-- Update the development documentation.
+### Fixed
+
+- Corrected Main Window test expectations after adding the Thin Lens page.
+- Fixed Matplotlib toolbar integration when replacing figures in the Plot Manager.
+- Corrected Thin Lens Home dashboard card initialization.
+- Connected the Thin Lens Home dashboard shortcut to application navigation.
+
+### Changed
+
+- Expanded Optik from reflection and refraction calculations to include thin lens optics.
+- Updated the application navigation structure.
+- Extended the visualization architecture with a reusable plotting component.
+- Improved separation between optical calculations, visualization, and graphical interface components.
+
+### Documentation
+
+- Updated the project README with v0.2.0 functionality.
+- Prepared updates to the Software Requirements Specification.
+- Prepared updates to the Software Design Document.
+- Prepared updates to the User Guide.
+- Prepared updates to the development documentation.
+
+### Release Verification
+
+- Main Window tests passed.
+- Complete test suite verification remains pending.
+- Final documentation review remains pending.
+
+**Release status:** v0.2.0 release candidate; not yet tagged or published.
 
 ---
 
@@ -113,5 +156,3 @@ This development release focuses on fundamental geometrical optics, introductory
 Advanced optical simulations remain outside the scope of v0.1.0.
 
 **Release status:** Development version tagged as `v0.1.0`.
-
----
