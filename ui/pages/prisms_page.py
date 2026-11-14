@@ -13,6 +13,7 @@ Features:
     - Light and dark themes
     - Persistent settings
     - Diagram export
+    - Improved invalid geometry handling
 """
 
 from __future__ import annotations
@@ -68,7 +69,7 @@ from visualization.dispersion_diagram import DispersionDiagram
 # ============================================================
 
 DEFAULT_APEX_ANGLE = 60.0
-DEFAULT_INCIDENT_ANGLE = 45.0
+DEFAULT_INCIDENT_ANGLE = 60.0
 DEFAULT_REFRACTIVE_INDEX = 1.5
 
 DEFAULT_WAVELENGTH = 550.0
@@ -229,7 +230,9 @@ class PrismPage(QWidget):
         ]
 
         for row, (label, widget) in enumerate(fields):
-            dispersion_grid.addWidget(QLabel(label), row, 0)
+            dispersion_grid.addWidget(
+                QLabel(label), row, 0
+            )
             dispersion_grid.addWidget(widget, row, 1)
 
         layout.addWidget(dispersion_group)
@@ -237,7 +240,9 @@ class PrismPage(QWidget):
         # VISUALIZATION MODE
 
         visualization_group = QGroupBox("Visualization")
-        visualization_layout = QVBoxLayout(visualization_group)
+        visualization_layout = QVBoxLayout(
+            visualization_group
+        )
 
         self.mode_combo = QComboBox()
         self.mode_combo.addItems([
@@ -317,7 +322,8 @@ class PrismPage(QWidget):
             dark_mode=self.dark_mode,
         )
 
-        self.figure.clear()
+        # The active visualization method manages
+        # the axes on the shared figure.
 
         layout.addWidget(self.toolbar)
         layout.addWidget(self.canvas, 1)
@@ -403,6 +409,7 @@ class PrismPage(QWidget):
                     widget.setValue(int(value))
                 else:
                     widget.setValue(float(value))
+
             except (TypeError, ValueError):
                 widget.setValue(default)
 
@@ -459,10 +466,6 @@ class PrismPage(QWidget):
         Visualization failures are handled separately.
         """
 
-        # ----------------------------------------------------
-        # READ USER INPUTS
-        # ----------------------------------------------------
-
         apex = self.apex_spin.value()
         incident = self.incident_spin.value()
         index = self.index_spin.value()
@@ -475,9 +478,7 @@ class PrismPage(QWidget):
             C=self.cauchy_c_spin.value(),
         )
 
-        # ----------------------------------------------------
         # CAUCHY REFRACTIVE INDEX
-        # ----------------------------------------------------
 
         try:
             cauchy_index = calculate_cauchy_index(
@@ -485,18 +486,12 @@ class PrismPage(QWidget):
                 coefficients,
             )
 
+            cauchy_text = f"{cauchy_index:.6f}"
+
         except (DispersionError, ValueError) as exc:
-            self.results_label.setText(
-                f"Calculation Error:\n{exc}"
-            )
+            cauchy_text = f"Unavailable: {exc}"
 
-            self.figure.clear()
-            self.canvas.draw_idle()
-            return
-
-        # ----------------------------------------------------
         # CRITICAL ANGLE
-        # ----------------------------------------------------
 
         try:
             critical_angle = calculate_prism_critical_angle(
@@ -508,9 +503,7 @@ class PrismPage(QWidget):
         except PrismError as exc:
             critical_text = f"Unavailable: {exc}"
 
-        # ----------------------------------------------------
         # MINIMUM DEVIATION
-        # ----------------------------------------------------
 
         try:
             minimum_deviation = calculate_minimum_deviation(
@@ -525,9 +518,7 @@ class PrismPage(QWidget):
                 "Unavailable for this prism geometry"
             )
 
-        # ----------------------------------------------------
         # PRISM REFRACTION
-        # ----------------------------------------------------
 
         try:
             result = calculate_prism_refraction(
@@ -560,9 +551,7 @@ class PrismPage(QWidget):
                 f"Reason: {exc}"
             )
 
-        # ----------------------------------------------------
         # DISPLAY RESULTS
-        # ----------------------------------------------------
 
         self.results_label.setText(
             f"Prism Apex Angle: {apex:.2f}°\n"
@@ -572,18 +561,12 @@ class PrismPage(QWidget):
             f"Minimum Deviation: {minimum_text}\n"
             f"Critical Angle: {critical_text}\n\n"
             f"Wavelength: {wavelength:.1f} nm\n"
-            f"Cauchy Index: {cauchy_index:.6f}"
+            f"Cauchy Index: {cauchy_text}"
         )
-
-        # ----------------------------------------------------
-        # SAVE SETTINGS
-        # ----------------------------------------------------
 
         self._save_settings()
 
-        # ----------------------------------------------------
         # UPDATE VISUALIZATION
-        # ----------------------------------------------------
 
         try:
             self._update_visualization(
@@ -594,13 +577,20 @@ class PrismPage(QWidget):
                 samples,
             )
 
-        except (PrismError, DispersionError, ValueError) as exc:
+        except (
+            PrismError,
+            DispersionError,
+            ValueError,
+            ArithmeticError,
+        ) as exc:
+
             self.figure.clear()
             self.canvas.draw_idle()
 
             self.results_label.setText(
                 self.results_label.text()
-                + f"\n\nVisualization unavailable: {exc}"
+                + "\n\nVisualization unavailable:\n"
+                + str(exc)
             )
 
     # ========================================================
@@ -619,42 +609,43 @@ class PrismPage(QWidget):
 
         mode = self.mode_combo.currentIndex()
 
+        # Remove axes from the previous visualization.
         self.figure.clear()
 
         if mode == 0:
-            self.prism_diagram.ax = (
-                self.figure.add_subplot(111)
-            )
+            diagram = self.prism_diagram
 
+        else:
+            diagram = self.dispersion_diagram
+
+        # Give the active diagram a new axes object.
+        diagram.ax = self.figure.add_subplot(111)
+
+        if mode == 0:
             self.prism_diagram.draw(
                 apex_angle=apex,
                 incident_angle=incident,
                 refractive_index=index,
             )
 
-        else:
-            self.dispersion_diagram.ax = (
-                self.figure.add_subplot(111)
+        elif mode == 1:
+            self.dispersion_diagram.draw_refractive_index(
+                coefficients=coefficients,
+                samples=samples,
             )
 
-            if mode == 1:
-                self.dispersion_diagram.draw_refractive_index(
-                    coefficients=coefficients,
-                    samples=samples,
-                )
+        elif mode == 2:
+            self.dispersion_diagram.draw_prism_deviation(
+                apex_angle=apex,
+                incident_angle=incident,
+                coefficients=coefficients,
+                samples=samples,
+            )
 
-            elif mode == 2:
-                self.dispersion_diagram.draw_prism_deviation(
-                    apex_angle=apex,
-                    incident_angle=incident,
-                    coefficients=coefficients,
-                    samples=samples,
-                )
-
-            elif mode == 3:
-                self.dispersion_diagram.draw_visible_spectrum(
-                    samples=samples,
-                )
+        elif mode == 3:
+            self.dispersion_diagram.draw_visible_spectrum(
+                samples=samples,
+            )
 
         self.canvas.draw_idle()
 
@@ -726,16 +717,4 @@ class PrismPage(QWidget):
             )
 
 
-# ============================================================
-# STANDALONE PREVIEW
-# ============================================================
 
-if __name__ == "__main__":
-
-    app = QApplication(sys.argv)
-
-    page = PrismPage()
-    page.resize(1200, 750)
-    page.show()
-
-    sys.exit(app.exec())

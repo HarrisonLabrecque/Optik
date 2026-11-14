@@ -14,6 +14,7 @@ Features:
     - Diagram export
     - Diagram clearing
     - Integration with Cauchy's dispersion model
+    - Validation of spectral plotting data
 
 Dependencies:
     matplotlib
@@ -32,7 +33,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from matplotlib.figure import Figure
-from matplotlib.colors import to_rgba
 
 from optics.dispersion import (
     CauchyCoefficients,
@@ -74,50 +74,43 @@ def wavelength_to_rgb(
     """
     Approximate a visible wavelength as an RGB color.
 
-    Parameters
-    ----------
-    wavelength_nm : float
-        Wavelength in nanometers.
-
-    Returns
-    -------
-    tuple[float, float, float]
-        RGB values between 0 and 1.
-
-    Notes
-    -----
-    This is an illustrative color approximation.
-    It is not a colorimetric conversion.
+    This is an illustrative approximation, not a
+    colorimetrically accurate conversion.
     """
 
     wavelength = float(wavelength_nm)
+
+    if not np.isfinite(wavelength):
+        raise ValueError(
+            "Wavelength must be a finite number."
+        )
 
     if wavelength < 380.0 or wavelength > 750.0:
         return (0.5, 0.5, 0.5)
 
     if wavelength < 440.0:
-        red = -(wavelength - 440.0) / (440.0 - 380.0)
+        red = -(wavelength - 440.0) / 60.0
         green = 0.0
         blue = 1.0
 
     elif wavelength < 490.0:
         red = 0.0
-        green = (wavelength - 440.0) / (490.0 - 440.0)
+        green = (wavelength - 440.0) / 50.0
         blue = 1.0
 
     elif wavelength < 510.0:
         red = 0.0
         green = 1.0
-        blue = -(wavelength - 510.0) / (510.0 - 490.0)
+        blue = -(wavelength - 510.0) / 20.0
 
     elif wavelength < 580.0:
-        red = (wavelength - 510.0) / (580.0 - 510.0)
+        red = (wavelength - 510.0) / 70.0
         green = 1.0
         blue = 0.0
 
     elif wavelength < 645.0:
         red = 1.0
-        green = -(wavelength - 645.0) / (645.0 - 580.0)
+        green = -(wavelength - 645.0) / 65.0
         blue = 0.0
 
     else:
@@ -156,7 +149,8 @@ class DispersionDiagram:
     ) -> None:
 
         self.figure = (
-            figure if figure is not None
+            figure
+            if figure is not None
             else Figure(figsize=(9, 6))
         )
 
@@ -201,14 +195,59 @@ class DispersionDiagram:
         self.ax.yaxis.label.set_color(foreground)
         self.ax.title.set_color(foreground)
 
+        for text in self.ax.get_legend().get_texts() \
+                if self.ax.get_legend() else []:
+            text.set_color(foreground)
+
     def set_dark_mode(self, enabled: bool) -> None:
         """Change the diagram theme."""
 
         self.dark_mode = bool(enabled)
         self._apply_theme()
+        self._refresh_canvas()
 
-        if self.figure.canvas is not None:
-            self.figure.canvas.draw_idle()
+    # ========================================================
+    # CANVAS REFRESH
+    # ========================================================
+
+    def _refresh_canvas(self) -> None:
+        """Request a Matplotlib canvas redraw."""
+
+        canvas = self.figure.canvas
+
+        if canvas is not None:
+            canvas.draw_idle()
+
+    # ========================================================
+    # SPECTRAL DATA VALIDATION
+    # ========================================================
+
+    @staticmethod
+    def _filter_finite_results(
+        results: list[
+            DispersionResult | SpectralPrismResult
+        ],
+        y_attribute: str,
+    ) -> list[
+        DispersionResult | SpectralPrismResult
+    ]:
+        """Keep results containing finite plot coordinates."""
+
+        valid_results = []
+
+        for result in results:
+            wavelength = float(result.wavelength_nm)
+            value = float(
+                getattr(result, y_attribute)
+            )
+
+            if (
+                np.isfinite(wavelength)
+                and np.isfinite(value)
+            ):
+                valid_results.append(result)
+
+        return valid_results
 
     # ========================================================
     # REFRACTIVE INDEX DIAGRAM
@@ -227,7 +266,7 @@ class DispersionDiagram:
         Returns
         -------
         list[DispersionResult]
-            Calculated spectral refractive indices.
+            Valid calculated spectral refractive indices.
         """
 
         results = calculate_spectral_dispersion(
@@ -237,17 +276,34 @@ class DispersionDiagram:
             samples,
         )
 
+        valid_results = self._filter_finite_results(
+            results,
+            "refractive_index",
+        )
+
+        if not valid_results:
+            raise ValueError(
+                "No valid refractive index values "
+                "were calculated for this wavelength range."
+            )
+
+        wavelengths = np.array(
+            [
+                result.wavelength_nm
+                for result in valid_results
+            ],
+            dtype=float,
+        )
+
+        indices = np.array(
+            [
+                result.refractive_index
+                for result in valid_results
+            ],
+            dtype=float,
+        )
+
         self.clear()
-
-        wavelengths = np.array([
-            result.wavelength_nm
-            for result in results
-        ])
-
-        indices = np.array([
-            result.refractive_index
-            for result in results
-        ])
 
         self.ax.plot(
             wavelengths,
@@ -264,11 +320,11 @@ class DispersionDiagram:
         self.ax.set_xlabel("Wavelength (nm)")
         self.ax.set_ylabel("Refractive Index")
 
-        self.last_results = results
+        self.last_results = valid_results
 
         self._finalize()
 
-        return results
+        return valid_results
 
     # ========================================================
     # PRISM DEVIATION DIAGRAM
@@ -286,10 +342,12 @@ class DispersionDiagram:
         """
         Draw prism deviation angle versus wavelength.
 
-        Returns
-        -------
-        list[SpectralPrismResult]
-            Calculated prism deviations.
+        Invalid or non-finite data points are excluded.
+
+        Raises
+        ------
+        ValueError
+            If no valid prism deviation values exist.
         """
 
         results = calculate_spectral_prism_deviation(
@@ -301,17 +359,36 @@ class DispersionDiagram:
             samples=samples,
         )
 
+        valid_results = self._filter_finite_results(
+            results,
+            "deviation_angle",
+        )
+
+        if not valid_results:
+            raise ValueError(
+                "No valid prism deviation values were "
+                "calculated. Check the apex angle, "
+                "incident angle, refractive index, "
+                "and wavelength range."
+            )
+
+        wavelengths = np.array(
+            [
+                result.wavelength_nm
+                for result in valid_results
+            ],
+            dtype=float,
+        )
+
+        deviations = np.array(
+            [
+                result.deviation_angle
+                for result in valid_results
+            ],
+            dtype=float,
+        )
+
         self.clear()
-
-        wavelengths = np.array([
-            result.wavelength_nm
-            for result in results
-        ])
-
-        deviations = np.array([
-            result.deviation_angle
-            for result in results
-        ])
 
         self.ax.plot(
             wavelengths,
@@ -326,16 +403,18 @@ class DispersionDiagram:
         )
 
         self.ax.set_xlabel("Wavelength (nm)")
-        self.ax.set_ylabel("Deviation Angle (degrees)")
+        self.ax.set_ylabel(
+            "Deviation Angle (degrees)"
+        )
 
-        self.last_results = results
+        self.last_results = valid_results
 
         self._finalize()
 
-        return results
+        return valid_results
 
     # ========================================================
-    # SPECTRAL COLOR DIAGRAM
+    # VISIBLE SPECTRUM DIAGRAM
     # ========================================================
 
     def draw_visible_spectrum(
@@ -344,18 +423,20 @@ class DispersionDiagram:
         end_wavelength_nm: float = VISIBLE_MAX_NM,
         samples: int = 100,
     ) -> None:
-        """
-        Draw an illustrative visible-spectrum color strip.
+        """Draw an illustrative visible-spectrum strip."""
 
-        The color strip represents approximate RGB colors
-        across visible wavelengths.
-        """
-
-        if not isinstance(samples, int) or isinstance(samples, bool):
-            raise ValueError("Sample count must be an integer.")
+        if (
+            not isinstance(samples, int)
+            or isinstance(samples, bool)
+        ):
+            raise ValueError(
+                "Sample count must be an integer."
+            )
 
         if samples < 2:
-            raise ValueError("Sample count must be at least 2.")
+            raise ValueError(
+                "Sample count must be at least 2."
+            )
 
         start = float(start_wavelength_nm)
         end = float(end_wavelength_nm)
@@ -365,7 +446,9 @@ class DispersionDiagram:
             and np.isfinite(end)
             and start < end
         ):
-            raise ValueError("Invalid wavelength range.")
+            raise ValueError(
+                "Invalid wavelength range."
+            )
 
         wavelengths = np.linspace(
             start,
@@ -373,10 +456,12 @@ class DispersionDiagram:
             samples,
         )
 
-        colors = np.array([
-            wavelength_to_rgb(wavelength)
-            for wavelength in wavelengths
-        ])
+        colors = np.array(
+            [
+                wavelength_to_rgb(wavelength)
+                for wavelength in wavelengths
+            ]
+        )
 
         strip = np.tile(
             colors[np.newaxis, :, :],
@@ -392,7 +477,10 @@ class DispersionDiagram:
             origin="lower",
         )
 
-        self.ax.set_title("Visible Light Spectrum")
+        self.ax.set_title(
+            "Visible Light Spectrum"
+        )
+
         self.ax.set_xlabel("Wavelength (nm)")
         self.ax.set_yticks([])
 
@@ -417,14 +505,18 @@ class DispersionDiagram:
         )
 
         if show_legend:
-            self.ax.legend(loc="best")
+            handles, labels = (
+                self.ax.get_legend_handles_labels()
+            )
+
+            if handles:
+                self.ax.legend(loc="best")
 
         self._apply_theme()
 
         self.figure.tight_layout()
 
-        if self.figure.canvas is not None:
-            self.figure.canvas.draw_idle()
+        self._refresh_canvas()
 
     # ========================================================
     # CLEAR
@@ -437,9 +529,7 @@ class DispersionDiagram:
         self.last_results = []
 
         self._apply_theme()
-
-        if self.figure.canvas is not None:
-            self.figure.canvas.draw_idle()
+        self._refresh_canvas()
 
     # ========================================================
     # SAVE
@@ -473,9 +563,33 @@ if __name__ == "__main__":
 
     diagram = DispersionDiagram()
 
-    diagram.draw_refractive_index(
-        coefficients=coefficients,
-        samples=100,
-    )
+    try:
+        results = diagram.draw_prism_deviation(
+            apex_angle=45.0,
+            incident_angle=40.0,
+            coefficients=coefficients,
+            samples=100,
+        )
 
-    plt.show()
+        print(
+            "Calculated deviation points:",
+            len(results),
+        )
+
+        print(
+            "First deviation:",
+            results[0].deviation_angle,
+        )
+
+        print(
+            "Last deviation:",
+            results[-1].deviation_angle,
+        )
+
+        plt.show()
+
+    except (ValueError, ArithmeticError) as exc:
+        print(
+            "Prism deviation plotting failed:",
+            exc,
+        )

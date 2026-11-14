@@ -25,7 +25,7 @@ def main() -> int:
     # Application metadata
     app.setOrganizationName("Optik")
     app.setApplicationName("Optik")
-    app.setApplicationVersion("0.3.0")
+    app.setApplicationVersion("0.4.0")
 
     # Configure a valid point-sized font.
     app.setFont(QFont("Segoe UI", 10))

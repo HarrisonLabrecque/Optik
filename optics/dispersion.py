@@ -12,6 +12,8 @@ Features:
     - Spectral refractive index calculations
     - Refractive index differences
     - Prism deviation across wavelengths
+    - Invalid ray geometry handling
+    - Total internal reflection handling
     - Input validation
 
 Assumptions:
@@ -33,7 +35,6 @@ import math
 from optics.prisms import (
     calculate_prism_refraction,
     PrismError,
-    TotalInternalReflectionError,
 )
 
 
@@ -110,6 +111,7 @@ def _validate_finite(value: float, name: str) -> float:
 
     try:
         number = float(value)
+
     except (TypeError, ValueError, OverflowError) as exc:
         raise DispersionError(
             f"{name} must be a finite number."
@@ -149,11 +151,26 @@ def _validate_coefficients(
             "Coefficients must be a CauchyCoefficients instance."
         )
 
-    A = _validate_finite(coefficients.A, "Coefficient A")
-    B = _validate_finite(coefficients.B, "Coefficient B")
-    C = _validate_finite(coefficients.C, "Coefficient C")
+    A = _validate_finite(
+        coefficients.A,
+        "Coefficient A",
+    )
 
-    return CauchyCoefficients(A=A, B=B, C=C)
+    B = _validate_finite(
+        coefficients.B,
+        "Coefficient B",
+    )
+
+    C = _validate_finite(
+        coefficients.C,
+        "Coefficient C",
+    )
+
+    return CauchyCoefficients(
+        A=A,
+        B=B,
+        C=C,
+    )
 
 
 def _validate_sample_count(samples: int) -> int:
@@ -194,7 +211,9 @@ def nanometers_to_micrometers(
         Wavelength in micrometers.
     """
 
-    wavelength_nm = _validate_wavelength(wavelength_nm)
+    wavelength_nm = _validate_wavelength(
+        wavelength_nm
+    )
 
     return wavelength_nm / NM_PER_UM
 
@@ -227,20 +246,15 @@ def calculate_cauchy_index(
     ------
     DispersionError
         If inputs or calculated index are invalid.
-
-    Notes
-    -----
-    Wavelength is converted to micrometers before
-    applying Cauchy's equation:
-
-        n = A + B / lambda^2 + C / lambda^4
     """
 
     wavelength_um = nanometers_to_micrometers(
         wavelength_nm
     )
 
-    coefficients = _validate_coefficients(coefficients)
+    coefficients = _validate_coefficients(
+        coefficients
+    )
 
     try:
         wavelength_squared = wavelength_um ** 2
@@ -289,7 +303,9 @@ def calculate_dispersion(
         Wavelength and corresponding refractive index.
     """
 
-    wavelength_nm = _validate_wavelength(wavelength_nm)
+    wavelength_nm = _validate_wavelength(
+        wavelength_nm
+    )
 
     refractive_index = calculate_cauchy_index(
         wavelength_nm,
@@ -355,10 +371,17 @@ def calculate_spectral_dispersion(
         Spectral refractive index results.
     """
 
-    start = _validate_wavelength(start_wavelength_nm)
-    end = _validate_wavelength(end_wavelength_nm)
+    start = _validate_wavelength(
+        start_wavelength_nm
+    )
 
-    samples = _validate_sample_count(samples)
+    end = _validate_wavelength(
+        end_wavelength_nm
+    )
+
+    samples = _validate_sample_count(
+        samples
+    )
 
     if start >= end:
         raise DispersionError(
@@ -372,7 +395,8 @@ def calculate_spectral_dispersion(
 
     for index in range(samples):
         wavelength = (
-            end if index == samples - 1
+            end
+            if index == samples - 1
             else start + index * step
         )
 
@@ -401,19 +425,18 @@ def calculate_spectral_prism_deviation(
     """
     Calculate prism deviation across a wavelength range.
 
-    Uses the prism refraction module to calculate
-    deviation for each wavelength.
+    Wavelengths that cannot produce a transmitted ray
+    are excluded from the results.
 
     Raises
     ------
     DispersionError
-        If any wavelength produces invalid prism geometry
-        or total internal reflection.
+        If no wavelengths produce valid transmission.
 
     Returns
     -------
     list[SpectralPrismResult]
-        Wavelength-dependent prism deviations.
+        Valid wavelength-dependent prism deviations.
     """
 
     spectral_results = calculate_spectral_dispersion(
@@ -423,7 +446,7 @@ def calculate_spectral_prism_deviation(
         samples,
     )
 
-    results = []
+    results: list[SpectralPrismResult] = []
 
     for spectral_result in spectral_results:
         wavelength = spectral_result.wavelength_nm
@@ -436,14 +459,10 @@ def calculate_spectral_prism_deviation(
                 refractive_index=refractive_index,
             )
 
-        except (
-            PrismError,
-            TotalInternalReflectionError,
-        ) as exc:
-            raise DispersionError(
-                "Prism refraction failed at wavelength "
-                f"{wavelength:.2f} nm: {exc}"
-            ) from exc
+        except PrismError:
+            # This wavelength does not produce
+            # a valid transmitted ray.
+            continue
 
         results.append(
             SpectralPrismResult(
@@ -452,6 +471,14 @@ def calculate_spectral_prism_deviation(
                 deviation_angle=prism_result.deviation_angle,
                 emergent_angle=prism_result.emergent_angle,
             )
+        )
+
+    if not results:
+        raise DispersionError(
+            "No valid prism deviation values were "
+            "calculated for the selected parameters. "
+            "Try adjusting the apex angle or "
+            "incident angle."
         )
 
     return results

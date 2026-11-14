@@ -11,6 +11,11 @@ Pages:
     4 - Mirror Optics
     5 - Prism Optics & Dispersion
     6 - Settings
+
+Startup:
+    - Always opens on Home
+    - Restores saved appearance theme
+    - Does not restore the last visited page
 """
 
 from __future__ import annotations
@@ -39,6 +44,10 @@ from ui.pages.mirror_page import MirrorPage
 from ui.pages.prisms_page import PrismPage
 from ui.pages.settings_page import SettingsPage
 
+
+# ============================================================
+# MAIN APPLICATION WINDOW
+# ============================================================
 
 class MainWindow(QMainWindow):
     """Main application window for Optik."""
@@ -86,20 +95,28 @@ class MainWindow(QMainWindow):
     # ========================================================
 
     def _setup_window(self):
+        """Configure the main application window."""
+
         self.setWindowTitle(
             "Optik v0.4.0 - Optics & Photonics"
         )
+
         self.setMinimumSize(900, 650)
         self.resize(1250, 850)
 
     def _setup_ui(self):
+        """Create the main window layout."""
+
         self.central_widget = QWidget(self)
         self.setCentralWidget(self.central_widget)
 
         self.main_layout = QHBoxLayout(
             self.central_widget
         )
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.main_layout.setContentsMargins(
+            0, 0, 0, 0
+        )
         self.main_layout.setSpacing(0)
 
         self._create_sidebar()
@@ -110,16 +127,24 @@ class MainWindow(QMainWindow):
     # ========================================================
 
     def _create_sidebar(self):
+        """Create the application sidebar."""
+
         self.sidebar = QFrame()
         self.sidebar.setObjectName("sidebar")
         self.sidebar.setFixedWidth(220)
 
         layout = QVBoxLayout(self.sidebar)
-        layout.setContentsMargins(15, 20, 15, 20)
+        layout.setContentsMargins(
+            15, 20, 15, 20
+        )
         layout.setSpacing(8)
 
+        # Application logo
+
         self.logo_label = QLabel("OPTIK")
-        self.logo_label.setObjectName("sidebarLogo")
+        self.logo_label.setObjectName(
+            "sidebarLogo"
+        )
         self.logo_label.setAlignment(
             Qt.AlignmentFlag.AlignCenter
         )
@@ -127,10 +152,17 @@ class MainWindow(QMainWindow):
         logo_font = self.logo_label.font()
         logo_font.setPointSize(20)
         logo_font.setBold(True)
+
         self.logo_label.setFont(logo_font)
 
-        self.version_label = QLabel("Version 0.4.0")
-        self.version_label.setObjectName("versionLabel")
+        # Version label
+
+        self.version_label = QLabel(
+            "Version 0.4.0"
+        )
+        self.version_label.setObjectName(
+            "versionLabel"
+        )
         self.version_label.setAlignment(
             Qt.AlignmentFlag.AlignCenter
         )
@@ -149,7 +181,11 @@ class MainWindow(QMainWindow):
         ]
 
         for index, name in navigation:
-            self._add_nav_button(layout, index, name)
+            self._add_nav_button(
+                layout,
+                index,
+                name,
+            )
 
         layout.addStretch()
 
@@ -159,13 +195,27 @@ class MainWindow(QMainWindow):
             "Settings",
         )
 
-        self.main_layout.addWidget(self.sidebar)
+        self.main_layout.addWidget(
+            self.sidebar
+        )
 
-    def _add_nav_button(self, layout, index, text):
+    def _add_nav_button(
+        self,
+        layout,
+        index,
+        text,
+    ):
+        """Create a sidebar navigation button."""
+
         button = QPushButton(text)
-        button.setObjectName(f"navButton{index}")
+
+        button.setObjectName(
+            f"navButton{index}"
+        )
+
         button.setCheckable(True)
         button.setMinimumHeight(42)
+
         button.setCursor(
             Qt.CursorShape.PointingHandCursor
         )
@@ -176,6 +226,7 @@ class MainWindow(QMainWindow):
         )
 
         self.nav_buttons[index] = button
+
         layout.addWidget(button)
 
     # ========================================================
@@ -183,13 +234,19 @@ class MainWindow(QMainWindow):
     # ========================================================
 
     def _create_pages(self):
+        """Initialize and register application pages."""
+
         self.stack = QStackedWidget()
         self.stacked_widget = self.stack
 
         self.home_page = HomePage()
+
         self.reflection_page = ReflectionPage()
+
         self.refraction_page = RefractionPage()
+
         self.lens_page = LensPage()
+
         self.mirror_page = MirrorPage()
 
         self.prism_page = PrismPage(
@@ -211,7 +268,13 @@ class MainWindow(QMainWindow):
         for page in self.pages:
             self.stack.addWidget(page)
 
-        self.main_layout.addWidget(self.stack, 1)
+        self.main_layout.addWidget(
+            self.stack,
+            1,
+        )
+
+        # Explicitly initialize the stack on Home.
+        self.stack.setCurrentIndex(self.HOME)
 
     # ========================================================
     # NAVIGATION
@@ -220,7 +283,10 @@ class MainWindow(QMainWindow):
     def navigate_to(self, index: int):
         """Navigate to an application page."""
 
-        if not isinstance(index, int):
+        if (
+            isinstance(index, bool)
+            or not isinstance(index, int)
+        ):
             raise ValueError(
                 "Page index must be an integer."
             )
@@ -233,18 +299,14 @@ class MainWindow(QMainWindow):
         self.stack.setCurrentIndex(index)
         self.current_page = index
 
+        # Update the selected sidebar button.
+
         for page_index, button in self.nav_buttons.items():
-            button.setChecked(page_index == index)
+            button.setChecked(
+                page_index == index
+            )
 
-        self.settings.setValue(
-            "window/last_page",
-            index,
-        )
-        self.settings.setValue(
-            "window/last_page_name",
-            self.PAGE_NAMES[index],
-        )
-
+        # Notify other application components.
         self.page_changed.emit(index)
 
     # ========================================================
@@ -273,7 +335,9 @@ class MainWindow(QMainWindow):
                 signal is not None
                 and hasattr(signal, "connect")
             ):
-                signal.connect(self.set_theme)
+                signal.connect(
+                    self.set_theme
+                )
 
     # ========================================================
     # THEME MANAGEMENT
@@ -292,10 +356,12 @@ class MainWindow(QMainWindow):
         self._apply_window_theme()
 
         for page in self.pages:
+
             if page is self.prism_page:
                 page.set_dark_mode(
                     normalized == "dark"
                 )
+
             elif hasattr(page, "set_theme"):
                 page.set_theme(normalized)
 
@@ -304,9 +370,13 @@ class MainWindow(QMainWindow):
             normalized,
         )
 
-        self.theme_changed.emit(normalized)
+        self.theme_changed.emit(
+            normalized
+        )
 
     def _apply_window_theme(self):
+        """Apply application-level theme styling."""
+
         dark = self.current_theme == "dark"
 
         if dark:
@@ -318,6 +388,7 @@ class MainWindow(QMainWindow):
             hover_bg = "#344563"
             selected_bg = "#2563eb"
             border = "#374151"
+
         else:
             background = "#f8fafc"
             sidebar_bg = "#e9eef5"
@@ -376,6 +447,8 @@ class MainWindow(QMainWindow):
     # ========================================================
 
     def _setup_shortcuts(self):
+        """Configure keyboard navigation shortcuts."""
+
         shortcuts = [
             ("Ctrl+1", self.HOME),
             ("Ctrl+2", self.REFLECTION),
@@ -387,7 +460,9 @@ class MainWindow(QMainWindow):
         ]
 
         for key_sequence, page_index in shortcuts:
+
             action = QAction(self)
+
             action.setShortcut(
                 QKeySequence(key_sequence)
             )
@@ -405,6 +480,13 @@ class MainWindow(QMainWindow):
     # ========================================================
 
     def _restore_settings(self):
+        """
+        Restore appearance settings.
+
+        Always initialize navigation on Home,
+        regardless of the previously selected page.
+        """
+
         theme = self.settings.value(
             "appearance/theme",
             "light",
@@ -413,62 +495,24 @@ class MainWindow(QMainWindow):
 
         self.set_theme(theme)
 
-        saved_page_name = self.settings.value(
-            "window/last_page_name",
-            "",
-            type=str,
-        )
-
-        if saved_page_name in self.PAGE_NAMES:
-            last_page = self.PAGE_NAMES.index(
-                saved_page_name
-            )
-        else:
-            last_page = self.settings.value(
-                "window/last_page",
-                self.HOME,
-                type=int,
-            )
-
-            # v0.3.0 stored Settings at index 5.
-            if last_page == 5:
-                last_page = self.SETTINGS
-
-        if not 0 <= last_page < self.stack.count():
-            last_page = self.HOME
-
-        self.navigate_to(last_page)
+        # Home is always the startup page.
+        self.navigate_to(self.HOME)
 
     # ========================================================
     # APPLICATION CLOSE EVENT
     # ========================================================
 
     def closeEvent(self, event):
-        self.settings.setValue(
-            "window/last_page",
-            self.current_page,
-        )
-        self.settings.setValue(
-            "window/last_page_name",
-            self.PAGE_NAMES[self.current_page],
-        )
+        """Save appearance settings on application close."""
+
         self.settings.setValue(
             "appearance/theme",
             self.current_theme,
         )
 
         self.settings.sync()
+
         super().closeEvent(event)
 
 
-# ============================================================
-# APPLICATION ENTRY POINT
-# ============================================================
 
-if __name__ == "__main__":
-    app = QApplication(sys.argv)
-
-    window = MainWindow()
-    window.show()
-
-    sys.exit(app.exec())
