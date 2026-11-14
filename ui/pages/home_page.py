@@ -1,7 +1,7 @@
 
 """
 Optik - Home Page
-Version: 0.3.0
+Version: 0.4.0
 
 Main application dashboard.
 
@@ -11,17 +11,20 @@ Features:
     - Refraction calculator navigation
     - Thin lens calculator navigation
     - Mirror optics calculator navigation
+    - Prism optics and dispersion navigation
     - Responsive feature cards
     - Light and dark themes
 """
 
 from __future__ import annotations
 
+import sys
+
 from PySide6.QtCore import Qt, Signal
 from PySide6.QtWidgets import (
+    QApplication,
     QWidget,
     QVBoxLayout,
-    QHBoxLayout,
     QGridLayout,
     QLabel,
     QPushButton,
@@ -30,6 +33,10 @@ from PySide6.QtWidgets import (
     QSizePolicy,
 )
 
+
+# ============================================================
+# FEATURE CARD
+# ============================================================
 
 class FeatureCard(QFrame):
     """Reusable dashboard card for an Optik calculator."""
@@ -49,11 +56,13 @@ class FeatureCard(QFrame):
         self.page_index = page_index
 
         self.setObjectName("featureCard")
-        self.setFrameShape(QFrame.StyledPanel)
+        self.setFrameShape(
+            QFrame.Shape.StyledPanel
+        )
         self.setMinimumHeight(180)
         self.setSizePolicy(
-            QSizePolicy.Expanding,
-            QSizePolicy.Preferred,
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
         )
 
         layout = QVBoxLayout(self)
@@ -74,14 +83,20 @@ class FeatureCard(QFrame):
         title_label.setFont(title_font)
 
         description_label = QLabel(description)
-        description_label.setObjectName("featureDescription")
+        description_label.setObjectName(
+            "featureDescription"
+        )
         description_label.setWordWrap(True)
 
         open_button = QPushButton("Open Calculator")
         open_button.setObjectName("featureButton")
-        open_button.setCursor(Qt.PointingHandCursor)
+        open_button.setCursor(
+            Qt.CursorShape.PointingHandCursor
+        )
+
         open_button.clicked.connect(
-            lambda: self.clicked.emit(self.page_index)
+            lambda checked=False:
+            self.clicked.emit(self.page_index)
         )
 
         layout.addWidget(title_label)
@@ -89,6 +104,10 @@ class FeatureCard(QFrame):
         layout.addStretch()
         layout.addWidget(open_button)
 
+
+# ============================================================
+# HOME PAGE
+# ============================================================
 
 class HomePage(QWidget):
     """Main Optik dashboard."""
@@ -100,7 +119,8 @@ class HomePage(QWidget):
     REFRACTION = 2
     LENS = 3
     MIRROR = 4
-    SETTINGS = 5
+    PRISM = 5
+    SETTINGS = 6
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -121,11 +141,17 @@ class HomePage(QWidget):
 
         self.scroll_area = QScrollArea()
         self.scroll_area.setWidgetResizable(True)
-        self.scroll_area.setFrameShape(QFrame.NoFrame)
+        self.scroll_area.setFrameShape(
+            QFrame.Shape.NoFrame
+        )
 
         self.content = QWidget()
-        self.content_layout = QVBoxLayout(self.content)
-        self.content_layout.setContentsMargins(30, 30, 30, 30)
+        self.content_layout = QVBoxLayout(
+            self.content
+        )
+        self.content_layout.setContentsMargins(
+            30, 30, 30, 30
+        )
         self.content_layout.setSpacing(22)
 
         self._create_header()
@@ -137,8 +163,14 @@ class HomePage(QWidget):
         self.scroll_area.setWidget(self.content)
         main_layout.addWidget(self.scroll_area)
 
+    # ========================================================
+    # HEADER
+    # ========================================================
+
     def _create_header(self):
-        self.title_label = QLabel("Welcome to Optik")
+        self.title_label = QLabel(
+            "Welcome to Optik"
+        )
         self.title_label.setObjectName("homeTitle")
 
         title_font = self.title_label.font()
@@ -150,31 +182,53 @@ class HomePage(QWidget):
             "Explore optics and photonics through "
             "interactive calculations and ray diagrams."
         )
-        self.subtitle_label.setObjectName("homeSubtitle")
+        self.subtitle_label.setObjectName(
+            "homeSubtitle"
+        )
         self.subtitle_label.setWordWrap(True)
 
         self.version_label = QLabel(
-            "Optik v0.3.0 — Mirror Optics"
+            "Optik v0.4.0 — Prism Optics & Dispersion"
         )
-        self.version_label.setObjectName("homeVersion")
+        self.version_label.setObjectName(
+            "homeVersion"
+        )
 
-        self.content_layout.addWidget(self.title_label)
-        self.content_layout.addWidget(self.subtitle_label)
-        self.content_layout.addWidget(self.version_label)
+        self.content_layout.addWidget(
+            self.title_label
+        )
+        self.content_layout.addWidget(
+            self.subtitle_label
+        )
+        self.content_layout.addWidget(
+            self.version_label
+        )
+
+    # ========================================================
+    # FEATURE CARDS
+    # ========================================================
 
     def _create_feature_cards(self):
-        self.section_label = QLabel("Optical Calculators")
-        self.section_label.setObjectName("sectionTitle")
+        self.section_label = QLabel(
+            "Optical Calculators"
+        )
+        self.section_label.setObjectName(
+            "sectionTitle"
+        )
 
         section_font = self.section_label.font()
         section_font.setPointSize(17)
         section_font.setBold(True)
         self.section_label.setFont(section_font)
 
-        self.content_layout.addWidget(self.section_label)
+        self.content_layout.addWidget(
+            self.section_label
+        )
 
         self.cards_container = QWidget()
-        self.cards_layout = QGridLayout(self.cards_container)
+        self.cards_layout = QGridLayout(
+            self.cards_container
+        )
         self.cards_layout.setSpacing(18)
 
         features = [
@@ -187,8 +241,9 @@ class HomePage(QWidget):
             ),
             (
                 "Refraction",
-                "Apply Snell's law, calculate critical angles, "
-                "and explore total internal reflection.",
+                "Apply Snell's law, calculate critical "
+                "angles, and explore total internal "
+                "reflection.",
                 self.REFRACTION,
                 "↘",
             ),
@@ -208,6 +263,15 @@ class HomePage(QWidget):
                 self.MIRROR,
                 "◖",
             ),
+            (
+                "Prism Optics & Dispersion",
+                "Explore prism refraction, minimum "
+                "deviation, wavelength-dependent "
+                "refractive index, and visible-light "
+                "dispersion.",
+                self.PRISM,
+                "△",
+            ),
         ]
 
         for index, (
@@ -224,7 +288,9 @@ class HomePage(QWidget):
                 icon=icon,
             )
 
-            card.clicked.connect(self.navigate_to.emit)
+            card.clicked.connect(
+                self.navigate_to.emit
+            )
 
             row = index // 2
             column = index % 2
@@ -240,16 +306,30 @@ class HomePage(QWidget):
         self.cards_layout.setColumnStretch(0, 1)
         self.cards_layout.setColumnStretch(1, 1)
 
-        self.content_layout.addWidget(self.cards_container)
+        self.content_layout.addWidget(
+            self.cards_container
+        )
+
+    # ========================================================
+    # FOOTER
+    # ========================================================
 
     def _create_footer(self):
         self.footer_label = QLabel(
-            "Optik — Open-Source Optics & Photonics Software"
+            "Optik — Open-Source Optics & "
+            "Photonics Software"
         )
-        self.footer_label.setObjectName("homeFooter")
-        self.footer_label.setAlignment(Qt.AlignCenter)
 
-        self.content_layout.addWidget(self.footer_label)
+        self.footer_label.setObjectName(
+            "homeFooter"
+        )
+        self.footer_label.setAlignment(
+            Qt.AlignmentFlag.AlignCenter
+        )
+
+        self.content_layout.addWidget(
+            self.footer_label
+        )
 
     # ========================================================
     # THEMES
@@ -257,6 +337,7 @@ class HomePage(QWidget):
 
     def set_theme(self, theme: str):
         """Apply light or dark styling."""
+
         self.current_theme = (
             "dark"
             if str(theme).lower() == "dark"
@@ -271,6 +352,7 @@ class HomePage(QWidget):
             border = "#334155"
             button_background = "#2563eb"
             hover_background = "#1d4ed8"
+
         else:
             background = "#f8fafc"
             card_background = "#ffffff"
@@ -346,20 +428,18 @@ class HomePage(QWidget):
         )
 
 
-'''
+# ============================================================
+# STANDALONE PREVIEW
+# ============================================================
 
 if __name__ == "__main__":
-    import sys
-
-    from PySide6.QtWidgets import QApplication
-
     app = QApplication(sys.argv)
 
     window = HomePage()
-    window.setWindowTitle("Optik v0.3.0 - Home")
+    window.setWindowTitle(
+        "Optik v0.4.0 - Home"
+    )
     window.resize(1000, 750)
     window.show()
 
     sys.exit(app.exec())
-
-    '''

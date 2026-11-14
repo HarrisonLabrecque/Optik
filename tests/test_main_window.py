@@ -1,461 +1,629 @@
 
 """
-Optik - Main Application Window
-Version: 0.3.0
+Optik - Main Window Unit and Integration Tests
+Version: 0.4.0
 
-Pages:
-    0 - Home
-    1 - Reflection
-    2 - Refraction
-    3 - Thin Lenses
-    4 - Mirror Optics
-    5 - Settings
+Tests:
+    - MainWindow initialization
+    - Seven application pages
+    - Sidebar navigation
+    - HomePage navigation signals
+    - PrismPage integration
+    - Keyboard shortcuts
+    - Light/dark theme switching
+    - QSettings persistence
+    - Legacy settings migration
+    - Invalid navigation
+    - Window closing
 """
 
 from __future__ import annotations
 
-from PySide6.QtCore import Qt, QSettings, Signal
-from PySide6.QtGui import QAction, QKeySequence
+import pytest
+
+from PySide6.QtCore import Qt, QSettings
+from PySide6.QtGui import QKeySequence
 from PySide6.QtWidgets import (
-    QApplication,
     QMainWindow,
-    QWidget,
-    QHBoxLayout,
-    QVBoxLayout,
-    QLabel,
     QPushButton,
     QStackedWidget,
-    QFrame,
 )
 
-from ui.pages.home_page import HomePage
-from ui.pages.reflection_page import ReflectionPage
-from ui.pages.refraction_page import RefractionPage
-from ui.pages.lens_page import LensPage
-from ui.pages.mirror_page import MirrorPage
-from ui.pages.settings_page import SettingsPage
+import app.main_window as main_window_module
+from app.main_window import MainWindow
 
 
-class MainWindow(QMainWindow):
-    """Main application window for Optik."""
+# ============================================================
+# FIXTURES
+# ============================================================
 
-    page_changed = Signal(int)
-    theme_changed = Signal(str)
+@pytest.fixture
+def isolated_settings(tmp_path, monkeypatch):
+    """
+    Isolate QSettings so tests never modify real user settings.
+    """
 
-    HOME = 0
-    REFLECTION = 1
-    REFRACTION = 2
-    LENS = 3
-    MIRROR = 4
-    SETTINGS = 5
+    original_qsettings = QSettings
 
-    PAGE_NAMES = (
-        "Home",
-        "Reflection",
-        "Refraction",
-        "Thin Lenses",
-        "Mirror Optics",
-        "Settings",
+    def create_settings(*args, **kwargs):
+        settings_path = tmp_path / "optik_test.ini"
+
+        return original_qsettings(
+            str(settings_path),
+            QSettings.Format.IniFormat,
+        )
+
+    monkeypatch.setattr(
+        main_window_module,
+        "QSettings",
+        create_settings,
     )
 
-    def __init__(self, parent=None):
-        super().__init__(parent)
+    return create_settings()
 
-        self.settings = QSettings("Optik", "Optik")
 
-        self.current_theme = "light"
-        self.current_page = self.HOME
+@pytest.fixture
+def window(qtbot, isolated_settings):
+    """Create and register a MainWindow instance."""
 
-        self.nav_buttons = {}
-        self.shortcut_actions = []
+    widget = MainWindow()
 
-        self._setup_window()
-        self._setup_ui()
-        self._setup_shortcuts()
-        self._connect_signals()
-        self._restore_settings()
+    qtbot.addWidget(widget)
+    widget.show()
 
-    # ========================================================
-    # WINDOW SETUP
-    # ========================================================
+    return widget
 
-    def _setup_window(self):
-        self.setWindowTitle(
-            "Optik v0.3.0 - Optics & Photonics"
-        )
-        self.setMinimumSize(900, 650)
-        self.resize(1250, 850)
 
-    def _setup_ui(self):
-        self.central_widget = QWidget(self)
-        self.setCentralWidget(self.central_widget)
+# ============================================================
+# INITIALIZATION
+# ============================================================
 
-        self.main_layout = QHBoxLayout(
-            self.central_widget
-        )
-        self.main_layout.setContentsMargins(0, 0, 0, 0)
-        self.main_layout.setSpacing(0)
+class TestMainWindowInitialization:
 
-        self._create_sidebar()
-        self._create_pages()
+    def test_window_creation(self, window):
+        assert isinstance(window, QMainWindow)
 
-    # ========================================================
-    # SIDEBAR NAVIGATION
-    # ========================================================
+    def test_window_title(self, window):
+        assert "Optik v0.4.0" in window.windowTitle()
 
-    def _create_sidebar(self):
-        self.sidebar = QFrame()
-        self.sidebar.setObjectName("sidebar")
-        self.sidebar.setFixedWidth(220)
+    def test_window_minimum_size(self, window):
+        assert window.minimumWidth() == 900
+        assert window.minimumHeight() == 650
 
-        layout = QVBoxLayout(self.sidebar)
-        layout.setContentsMargins(15, 20, 15, 20)
-        layout.setSpacing(8)
+    def test_window_default_page(self, window):
+        assert window.current_page == window.HOME
+        assert window.stack.currentIndex() == window.HOME
 
-        self.logo_label = QLabel("OPTIK")
-        self.logo_label.setAlignment(
-            Qt.AlignCenter
+    def test_window_default_theme(self, window):
+        assert window.current_theme == "light"
+
+    def test_version_label(self, window):
+        assert "0.4.0" in window.version_label.text()
+
+    def test_sidebar_width(self, window):
+        assert window.sidebar.width() == 220
+
+    def test_sidebar_object_name(self, window):
+        assert window.sidebar.objectName() == "sidebar"
+
+    def test_stacked_widget(self, window):
+        assert isinstance(
+            window.stack,
+            QStackedWidget,
         )
 
-        logo_font = self.logo_label.font()
-        logo_font.setPointSize(20)
-        logo_font.setBold(True)
-        self.logo_label.setFont(logo_font)
+    def test_stack_alias(self, window):
+        assert window.stacked_widget is window.stack
 
-        self.version_label = QLabel(
-            "Version 0.3.0"
+
+# ============================================================
+# PAGE CONSTANTS AND REGISTRATION
+# ============================================================
+
+class TestMainWindowPages:
+
+    @pytest.mark.parametrize(
+        "attribute, expected",
+        [
+            ("HOME", 0),
+            ("REFLECTION", 1),
+            ("REFRACTION", 2),
+            ("LENS", 3),
+            ("MIRROR", 4),
+            ("PRISM", 5),
+            ("SETTINGS", 6),
+        ],
+    )
+    def test_page_constants(
+        self,
+        attribute,
+        expected,
+    ):
+        assert getattr(MainWindow, attribute) == expected
+
+    def test_seven_pages_registered(self, window):
+        assert window.stack.count() == 7
+        assert len(window.pages) == 7
+
+    def test_page_order(self, window):
+        expected_pages = (
+            window.home_page,
+            window.reflection_page,
+            window.refraction_page,
+            window.lens_page,
+            window.mirror_page,
+            window.prism_page,
+            window.settings_page,
         )
-        self.version_label.setAlignment(
-            Qt.AlignCenter
+
+        assert window.pages == expected_pages
+
+        for index, page in enumerate(expected_pages):
+            assert window.stack.widget(index) is page
+
+    def test_page_names(self, window):
+        assert len(window.PAGE_NAMES) == 7
+
+        assert window.PAGE_NAMES[window.PRISM] == (
+            "Prism Optics & Dispersion"
         )
 
-        layout.addWidget(self.logo_label)
-        layout.addWidget(self.version_label)
-        layout.addSpacing(25)
+        assert window.PAGE_NAMES[window.SETTINGS] == (
+            "Settings"
+        )
 
-        navigation = [
-            (self.HOME, "Home"),
-            (self.REFLECTION, "Reflection"),
-            (self.REFRACTION, "Refraction"),
-            (self.LENS, "Thin Lenses"),
-            (self.MIRROR, "Mirror Optics"),
-        ]
+    def test_prism_page_registered(self, window):
+        assert window.prism_page is not None
 
-        for index, name in navigation:
-            self._add_nav_button(
-                layout,
-                index,
-                name,
+        assert window.stack.indexOf(
+            window.prism_page
+        ) == window.PRISM
+
+
+# ============================================================
+# SIDEBAR
+# ============================================================
+
+class TestMainWindowSidebar:
+
+    def test_seven_navigation_buttons(self, window):
+        assert len(window.nav_buttons) == 7
+
+    @pytest.mark.parametrize(
+        "page_index",
+        range(7),
+    )
+    def test_navigation_button_exists(
+        self,
+        window,
+        page_index,
+    ):
+        button = window.nav_buttons[page_index]
+
+        assert isinstance(button, QPushButton)
+        assert button.isCheckable()
+
+    def test_home_button_checked_by_default(
+        self,
+        window,
+    ):
+        assert window.nav_buttons[
+            window.HOME
+        ].isChecked()
+
+    @pytest.mark.parametrize(
+        "page_index",
+        range(7),
+    )
+    def test_sidebar_button_navigation(
+        self,
+        window,
+        qtbot,
+        page_index,
+    ):
+        button = window.nav_buttons[page_index]
+
+        qtbot.mouseClick(
+            button,
+            Qt.MouseButton.LeftButton,
+        )
+
+        assert window.current_page == page_index
+        assert window.stack.currentIndex() == page_index
+
+        for index, nav_button in (
+            window.nav_buttons.items()
+        ):
+            assert nav_button.isChecked() == (
+                index == page_index
             )
 
-        layout.addStretch()
+    def test_prism_sidebar_button(self, window):
+        button = window.nav_buttons[
+            window.PRISM
+        ]
 
-        self._add_nav_button(
-            layout,
-            self.SETTINGS,
+        assert "Prism" in button.text()
+
+
+# ============================================================
+# NAVIGATION
+# ============================================================
+
+class TestMainWindowNavigation:
+
+    @pytest.mark.parametrize(
+        "page_index",
+        range(7),
+    )
+    def test_navigate_to_page(
+        self,
+        window,
+        page_index,
+    ):
+        window.navigate_to(page_index)
+
+        assert window.current_page == page_index
+        assert window.stack.currentIndex() == page_index
+
+    def test_navigation_emits_signal(
+        self,
+        window,
+        qtbot,
+    ):
+        with qtbot.waitSignal(
+            window.page_changed,
+            timeout=1000,
+        ) as signal:
+            window.navigate_to(window.PRISM)
+
+        assert signal.args == [window.PRISM]
+
+    @pytest.mark.parametrize(
+        "invalid_index",
+        [-1, 7, 100],
+    )
+    def test_invalid_page_index(
+        self,
+        window,
+        invalid_index,
+    ):
+        with pytest.raises(ValueError):
+            window.navigate_to(invalid_index)
+
+    @pytest.mark.parametrize(
+        "invalid_index",
+        ["1", None, 1.5],
+    )
+    def test_non_integer_page_index(
+        self,
+        window,
+        invalid_index,
+    ):
+        with pytest.raises(ValueError):
+            window.navigate_to(invalid_index)
+
+    def test_navigation_updates_settings(
+        self,
+        window,
+    ):
+        window.navigate_to(window.PRISM)
+
+        assert window.settings.value(
+            "window/last_page",
+            type=int,
+        ) == window.PRISM
+
+        assert window.settings.value(
+            "window/last_page_name",
+            type=str,
+        ) == "Prism Optics & Dispersion"
+
+    def test_home_page_navigation_signal(
+        self,
+        window,
+    ):
+        window.home_page.navigate_to.emit(
+            window.PRISM
+        )
+
+        assert window.current_page == window.PRISM
+
+
+# ============================================================
+# KEYBOARD SHORTCUTS
+# ============================================================
+
+class TestMainWindowShortcuts:
+
+    def test_seven_shortcuts(self, window):
+        assert len(window.shortcut_actions) == 7
+
+    @pytest.mark.parametrize(
+        "page_index",
+        range(7),
+    )
+    def test_shortcut_mapping(
+        self,
+        window,
+        page_index,
+    ):
+        action = window.shortcut_actions[
+            page_index
+        ]
+
+        expected = QKeySequence(
+            f"Ctrl+{page_index + 1}"
+        )
+
+        assert action.shortcut() == expected
+
+    @pytest.mark.parametrize(
+        "page_index",
+        range(7),
+    )
+    def test_shortcut_action_navigation(
+        self,
+        window,
+        page_index,
+    ):
+        action = window.shortcut_actions[
+            page_index
+        ]
+
+        action.trigger()
+
+        assert window.current_page == page_index
+
+    def test_prism_shortcut(self, window):
+        window.shortcut_actions[5].trigger()
+
+        assert window.current_page == window.PRISM
+
+    def test_settings_shortcut(self, window):
+        window.shortcut_actions[6].trigger()
+
+        assert window.current_page == window.SETTINGS
+
+
+# ============================================================
+# THEME MANAGEMENT
+# ============================================================
+
+class TestMainWindowThemes:
+
+    def test_light_theme(self, window):
+        window.set_theme("light")
+
+        assert window.current_theme == "light"
+
+        assert window.settings.value(
+            "appearance/theme"
+        ) == "light"
+
+    def test_dark_theme(self, window):
+        window.set_theme("dark")
+
+        assert window.current_theme == "dark"
+
+        assert window.settings.value(
+            "appearance/theme"
+        ) == "dark"
+
+    def test_theme_switching(self, window):
+        window.set_theme("dark")
+        assert window.current_theme == "dark"
+
+        window.set_theme("light")
+        assert window.current_theme == "light"
+
+    def test_invalid_theme_defaults_to_light(
+        self,
+        window,
+    ):
+        window.set_theme("invalid")
+
+        assert window.current_theme == "light"
+
+    def test_case_insensitive_theme(self, window):
+        window.set_theme("DARK")
+
+        assert window.current_theme == "dark"
+
+    def test_theme_emits_signal(
+        self,
+        window,
+        qtbot,
+    ):
+        with qtbot.waitSignal(
+            window.theme_changed,
+            timeout=1000,
+        ) as signal:
+            window.set_theme("dark")
+
+        assert signal.args == ["dark"]
+
+    def test_prism_receives_dark_theme(
+        self,
+        window,
+        monkeypatch,
+    ):
+        received = []
+
+        monkeypatch.setattr(
+            window.prism_page,
+            "set_dark_mode",
+            lambda dark: received.append(dark),
+        )
+
+        window.set_theme("dark")
+
+        assert received == [True]
+
+    def test_prism_receives_light_theme(
+        self,
+        window,
+        monkeypatch,
+    ):
+        received = []
+
+        monkeypatch.setattr(
+            window.prism_page,
+            "set_dark_mode",
+            lambda dark: received.append(dark),
+        )
+
+        window.set_theme("light")
+
+        assert received == [False]
+
+    def test_dark_stylesheet(self, window):
+        window.set_theme("dark")
+
+        assert "#111827" in (
+            window.central_widget.styleSheet()
+        )
+
+    def test_light_stylesheet(self, window):
+        window.set_theme("light")
+
+        assert "#f8fafc" in (
+            window.central_widget.styleSheet()
+        )
+
+
+# ============================================================
+# PERSISTENT SETTINGS
+# ============================================================
+
+class TestMainWindowPersistence:
+
+    def test_restore_theme(
+        self,
+        qtbot,
+        isolated_settings,
+    ):
+        isolated_settings.setValue(
+            "appearance/theme",
+            "dark",
+        )
+
+        widget = MainWindow()
+        qtbot.addWidget(widget)
+
+        assert widget.current_theme == "dark"
+
+    def test_restore_prism_page(
+        self,
+        qtbot,
+        isolated_settings,
+    ):
+        isolated_settings.setValue(
+            "window/last_page_name",
+            "Prism Optics & Dispersion",
+        )
+
+        widget = MainWindow()
+        qtbot.addWidget(widget)
+
+        assert widget.current_page == widget.PRISM
+        assert widget.stack.currentIndex() == 5
+
+    def test_restore_settings_page(
+        self,
+        qtbot,
+        isolated_settings,
+    ):
+        isolated_settings.setValue(
+            "window/last_page_name",
             "Settings",
         )
 
-        self.main_layout.addWidget(
-            self.sidebar
-        )
+        widget = MainWindow()
+        qtbot.addWidget(widget)
 
-    def _add_nav_button(
+        assert widget.current_page == widget.SETTINGS
+
+    def test_migrate_legacy_settings_index(
         self,
-        layout,
-        index,
-        text,
+        qtbot,
+        isolated_settings,
     ):
-        button = QPushButton(text)
-        button.setObjectName(
-            f"navButton{index}"
-        )
-        button.setCheckable(True)
-        button.setMinimumHeight(42)
-        button.setCursor(
-            Qt.PointingHandCursor
-        )
+        """
+        In v0.3.0 Settings was page 5.
+        In v0.4.0 Settings is page 6.
+        """
 
-        button.clicked.connect(
-            lambda checked=False, page=index:
-            self.navigate_to(page)
+        isolated_settings.remove(
+            "window/last_page_name"
         )
 
-        self.nav_buttons[index] = button
-        layout.addWidget(button)
-
-    # ========================================================
-    # APPLICATION PAGES
-    # ========================================================
-
-    def _create_pages(self):
-        self.stack = QStackedWidget()
-        self.stacked_widget = self.stack
-
-        self.home_page = HomePage()
-        self.reflection_page = ReflectionPage()
-        self.refraction_page = RefractionPage()
-        self.lens_page = LensPage()
-        self.mirror_page = MirrorPage()
-        self.settings_page = SettingsPage()
-
-        self.pages = (
-            self.home_page,
-            self.reflection_page,
-            self.refraction_page,
-            self.lens_page,
-            self.mirror_page,
-            self.settings_page,
-        )
-
-        for page in self.pages:
-            self.stack.addWidget(page)
-
-        self.main_layout.addWidget(
-            self.stack,
-            1,
-        )
-
-    # ========================================================
-    # NAVIGATION
-    # ========================================================
-
-    def navigate_to(self, index: int):
-        """Navigate to an application page."""
-        if not isinstance(index, int):
-            raise ValueError(
-                "Page index must be an integer."
-            )
-
-        if not 0 <= index < self.stack.count():
-            raise ValueError(
-                f"Invalid page index: {index}"
-            )
-
-        self.stack.setCurrentIndex(index)
-        self.current_page = index
-
-        for page_index, button in self.nav_buttons.items():
-            button.setChecked(
-                page_index == index
-            )
-
-        self.settings.setValue(
+        isolated_settings.setValue(
             "window/last_page",
-            index,
+            5,
         )
 
-        self.page_changed.emit(index)
+        widget = MainWindow()
+        qtbot.addWidget(widget)
 
-    # ========================================================
-    # SIGNAL CONNECTIONS
-    # ========================================================
+        assert widget.current_page == widget.SETTINGS
 
-    def _connect_signals(self):
-        """Connect dashboard and settings signals."""
-
-        # HomePage v0.3.0 emits navigate_to(int).
-        self.home_page.navigate_to.connect(
-            self.navigate_to
+    def test_invalid_saved_page_falls_back_home(
+        self,
+        qtbot,
+        isolated_settings,
+    ):
+        isolated_settings.setValue(
+            "window/last_page_name",
+            "Nonexistent Page",
         )
 
-        # Connect supported SettingsPage theme signals.
-        for signal_name in (
-            "theme_changed",
-            "theme_selected",
-            "theme_requested",
-        ):
-            signal = getattr(
-                self.settings_page,
-                signal_name,
-                None,
-            )
-
-            if (
-                signal is not None
-                and hasattr(signal, "connect")
-            ):
-                signal.connect(
-                    self.set_theme
-                )
-
-    # ========================================================
-    # THEME MANAGEMENT
-    # ========================================================
-
-    def set_theme(self, theme: str):
-        """Apply a light or dark theme."""
-        normalized = str(theme).lower().strip()
-
-        if normalized not in (
-            "light",
-            "dark",
-        ):
-            normalized = "light"
-
-        self.current_theme = normalized
-
-        self._apply_window_theme()
-
-        for page in self.pages:
-            if hasattr(page, "set_theme"):
-                page.set_theme(
-                    normalized
-                )
-
-        self.settings.setValue(
-            "appearance/theme",
-            normalized,
-        )
-
-        self.theme_changed.emit(
-            normalized
-        )
-
-    def _apply_window_theme(self):
-        dark = self.current_theme == "dark"
-
-        if dark:
-            background = "#111827"
-            sidebar_bg = "#172033"
-            foreground = "#f9fafb"
-            muted = "#9ca3af"
-            button_bg = "#253249"
-            hover_bg = "#344563"
-            selected_bg = "#2563eb"
-            border = "#374151"
-        else:
-            background = "#f8fafc"
-            sidebar_bg = "#e9eef5"
-            foreground = "#172033"
-            muted = "#64748b"
-            button_bg = "#ffffff"
-            hover_bg = "#dbeafe"
-            selected_bg = "#2563eb"
-            border = "#cbd5e1"
-
-        self.central_widget.setStyleSheet(
-            f"""
-            QWidget {{
-                background-color: {background};
-                color: {foreground};
-            }}
-
-            QFrame#sidebar {{
-                background-color: {sidebar_bg};
-                border-right: 1px solid {border};
-            }}
-
-            QLabel {{
-                color: {foreground};
-            }}
-
-            QPushButton[checkable="true"] {{
-                background-color: {button_bg};
-                color: {foreground};
-                border: 1px solid {border};
-                border-radius: 8px;
-                padding: 10px;
-                text-align: left;
-            }}
-
-            QPushButton[checkable="true"]:hover {{
-                background-color: {hover_bg};
-            }}
-
-            QPushButton[checkable="true"]:checked {{
-                background-color: {selected_bg};
-                color: white;
-                border-color: {selected_bg};
-            }}
-            """
-        )
-
-    # ========================================================
-    # KEYBOARD SHORTCUTS
-    # ========================================================
-
-    def _setup_shortcuts(self):
-        shortcuts = [
-            ("Ctrl+1", self.HOME),
-            ("Ctrl+2", self.REFLECTION),
-            ("Ctrl+3", self.REFRACTION),
-            ("Ctrl+4", self.LENS),
-            ("Ctrl+5", self.MIRROR),
-            ("Ctrl+6", self.SETTINGS),
-        ]
-
-        for key_sequence, page_index in shortcuts:
-            action = QAction(self)
-
-            action.setShortcut(
-                QKeySequence(key_sequence)
-            )
-
-            action.triggered.connect(
-                lambda checked=False, index=page_index:
-                self.navigate_to(index)
-            )
-
-            self.addAction(action)
-            self.shortcut_actions.append(
-                action
-            )
-
-    # ========================================================
-    # PERSISTENT SETTINGS
-    # ========================================================
-
-    def _restore_settings(self):
-        theme = self.settings.value(
-            "appearance/theme",
-            "light",
-            type=str,
-        )
-
-        self.set_theme(theme)
-
-        last_page = self.settings.value(
+        isolated_settings.setValue(
             "window/last_page",
-            self.HOME,
+            999,
+        )
+
+        widget = MainWindow()
+        qtbot.addWidget(widget)
+
+        assert widget.current_page == widget.HOME
+
+    def test_close_saves_settings(
+        self,
+        window,
+    ):
+        window.navigate_to(window.PRISM)
+        window.set_theme("dark")
+
+        window.close()
+
+        assert window.settings.value(
+            "window/last_page",
             type=int,
-        )
+        ) == window.PRISM
 
-        if not 0 <= last_page < self.stack.count():
-            last_page = self.HOME
+        assert window.settings.value(
+            "window/last_page_name",
+            type=str,
+        ) == "Prism Optics & Dispersion"
 
-        self.navigate_to(last_page)
-
-    # ========================================================
-    # APPLICATION CLOSE EVENT
-    # ========================================================
-
-    def closeEvent(self, event):
-        self.settings.setValue(
-            "window/last_page",
-            self.current_page,
-        )
-
-        self.settings.setValue(
+        assert window.settings.value(
             "appearance/theme",
-            self.current_theme,
-        )
-
-        self.settings.sync()
-
-        super().closeEvent(event)
+            type=str,
+        ) == "dark"
 
 
 # ============================================================
-# APPLICATION ENTRY POINT
+# WINDOW VISIBILITY
 # ============================================================
 
-if __name__ == "__main__":
-    import sys
+class TestMainWindowVisibility:
 
-    app = QApplication(sys.argv)
+    def test_window_visible(self, window):
+        assert window.isVisible()
 
-    window = MainWindow()
-    window.show()
+    def test_sidebar_visible(self, window):
+        assert window.sidebar.isVisible()
 
-    sys.exit(app.exec())
+    def test_stack_visible(self, window):
+        assert window.stack.isVisible()
