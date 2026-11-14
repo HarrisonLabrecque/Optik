@@ -1,589 +1,892 @@
 # Optik — Development Guide
 
-**Version:** 0.2.0  
-**Project:** Optik  
-**Language:** Python  
+**Project:** Optik — Open-Source Optics & Photonics Desktop Application  
+**Current Development Version:** v0.3.0  
+**Document Status:** Maintained  
+**Programming Language:** Python  
 **GUI Framework:** PySide6  
-**License:** MIT  
-**Development Status:** v0.2.0 Release Candidate
+**License:** MIT
 
 ---
 
 ## 1. Introduction
 
-Optik is an open-source desktop application for optics and photonics calculations and visualization.
+### 1.1 Purpose
 
-The application is developed using Python and PySide6, with Matplotlib providing graphical representations of optical ray behavior and image formation.
+This document describes the development practices, project organization, testing procedures, version control workflow, and release preparation process for Optik.
 
-Version 0.2.0 extends the original geometrical optics functionality with thin lens calculations, magnification, image classification, and reusable plotting components.
+Optik is an open-source scientific desktop application for performing optical calculations and generating scientific visualizations.
 
-This guide describes the development environment, project structure, architecture, testing procedures, and contribution workflow.
+The Development Guide is intended for project maintainers and contributors.
+
+### 1.2 Development Objectives
+
+The development process aims to:
+
+- Maintain a modular software architecture.
+- Separate scientific calculations from GUI components.
+- Develop and test features incrementally.
+- Preserve compatibility with existing functionality where practical.
+- Maintain readable and maintainable Python code.
+- Use automated testing to detect regressions.
+- Document changes for each software release.
+- Support public open-source development.
+
+### 1.3 Development Philosophy
+
+Optik follows an incremental, version-based development approach.
+
+Each development version introduces a defined set of features.
+
+The general workflow is:
+
+1. Define requirements.
+2. Design the scientific calculation modules.
+3. Implement the mathematical calculations.
+4. Write and execute unit tests.
+5. Implement scientific visualizations.
+6. Write visualization tests.
+7. Implement GUI components.
+8. Write GUI tests.
+9. Integrate features into the main application.
+10. Run regression tests.
+11. Perform manual verification.
+12. Update documentation.
+13. Prepare and publish the release.
+
+---
 
 ## 2. Development Environment
 
-### 2.1 Recommended Tools
+### 2.1 Required Software
 
-- Python 3.14 or a compatible Python 3 version
-- Visual Studio Code or another Python-compatible IDE
-- Git
-- GitHub
-- Windows PowerShell or another supported terminal
-
-Windows is the primary development environment.
-
-### 2.2 Python Dependencies
-
-| Package | Purpose |
+| Tool | Purpose |
 |---|---|
-| PySide6 | Desktop graphical interface |
-| NumPy | Numerical computation |
+| Python | Application development |
+| PySide6 | Desktop GUI |
+| NumPy | Numerical operations |
 | SciPy | Scientific computing |
-| Matplotlib | Optical ray visualization |
-| pytest | Automated testing |
-| pytest-qt | Qt GUI testing |
+| Matplotlib | Optical visualization |
+| pytest | Unit testing |
+| pytest-qt | GUI testing |
+| Git | Version control |
+| GitHub | Repository hosting |
+| PyInstaller | Windows executable packaging, when applicable |
 
-The geometrical optics calculation modules primarily use Python's built-in `math` library.
-
-## 3. Setting Up the Development Environment
-
-### 3.1 Clone the Repository
+### 2.2 Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/YOUR_USERNAME/Optik.git
 cd Optik
 ```
 
-Replace `<repository-url>` with the actual Optik repository address.
+Replace `YOUR_USERNAME` with the actual repository owner's username.
 
-### 3.2 Create a Virtual Environment
+### 2.3 Create a Virtual Environment
+
+Windows:
 
 ```powershell
 python -m venv .venv
-```
-
-### 3.3 Activate the Environment
-
-Windows PowerShell:
-
-```powershell
-.venv\Scripts\Activate.ps1
+.venv\Scripts\activate
 ```
 
 Linux/macOS:
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### 3.4 Install Dependencies
+### 2.4 Install Dependencies
 
 ```bash
+python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Install testing dependencies if they are not already included:
+Install development dependencies if they are not included in the requirements file:
 
 ```bash
 python -m pip install pytest pytest-qt
 ```
 
-### 3.5 Launch the Application
+### 2.5 Launch the Application
 
 ```bash
-python main.py
+python -m app.main_window
 ```
 
-The Optik desktop interface should open.
+---
 
-## 4. Project Architecture
+## 3. Project Organization
 
-Optik follows a modular architecture that separates optical calculations, scientific visualization, and graphical interface components.
+Optik separates application logic into distinct directories.
 
 ```text
 Optik/
 │
-├── main.py
-├── pyproject.toml
-├── requirements.txt
-├── README.md
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── LICENSE
-│
 ├── app/
-│   ├── __init__.py
-│   ├── main_window.py
-│   └── config.py
+│   └── main_window.py
+│
+├── optics/
+│   ├── reflection.py
+│   ├── refraction.py
+│   ├── thin_lens.py
+│   ├── magnification.py
+│   ├── mirrors.py
+│   └── mirror_magnification.py
+│
+├── visualization/
+│   ├── reflection_diagram.py
+│   ├── refraction_diagram.py
+│   ├── lens_diagram.py
+│   └── mirror_diagram.py
 │
 ├── ui/
 │   ├── pages/
-│   │   ├── __init__.py
 │   │   ├── home_page.py
 │   │   ├── reflection_page.py
 │   │   ├── refraction_page.py
 │   │   ├── lens_page.py
+│   │   ├── mirror_page.py
 │   │   └── settings_page.py
 │   │
-│   ├── widgets/
-│   │   ├── __init__.py
-│   │   ├── sidebar.py
-│   │   ├── metric_card.py
-│   │   └── input_panel.py
-│   │
-│   └── styles/
-│       ├── main.qss
-│       ├── light.qss
-│       └── dark.qss
-│
-├── optics/
-│   ├── __init__.py
-│   ├── reflection.py
-│   ├── refraction.py
-│   ├── snells_law.py
-│   ├── total_internal_reflection.py
-│   ├── thin_lens.py
-│   └── magnification.py
-│
-├── visualization/
-│   ├── __init__.py
-│   ├── ray_diagram.py
-│   ├── lens_diagram.py
-│   └── plot_manager.py
-│
-├── utils/
-│   ├── __init__.py
-│   ├── validators.py
-│   └── constants.py
+│   └── widgets/
 │
 ├── tests/
-│   ├── __init__.py
-│   ├── test_reflection.py
-│   ├── test_refraction.py
-│   ├── test_snells_law.py
-│   ├── test_total_internal_reflection.py
-│   ├── test_main_window.py
-│   ├── test_reflection_page.py
-│   ├── test_refraction_page.py
-│   ├── test_ray_diagram.py
-│   ├── test_thin_lens.py
-│   ├── test_magnification.py
-│   ├── test_lens_diagram.py
-│   └── test_plot_manager.py
 │
-└── docs/
-    ├── SRS.md
-    ├── SDD.md
-    ├── USER_GUIDE.md
-    └── DEVELOPMENT.md
+├── docs/
+│   ├── SRS.md
+│   ├── SDD.md
+│   ├── USER_GUIDE.md
+│   ├── DEVELOPMENT.md
+│   └── screenshots/
+│
+├── README.md
+├── CHANGELOG.md
+├── LICENSE
+└── requirements.txt
 ```
 
-Some files may be placeholders or require further implementation and verification.
+The directory structure may expand as new features are introduced.
 
-## 5. Application Components
+### 3.1 `app/`
 
-### 5.1 Application Entry Point
+Contains application initialization and main-window coordination.
 
-**File:** `main.py`
+### 3.2 `optics/`
 
-Responsibilities:
+Contains mathematical models and scientific calculations.
 
-- Initialize `QApplication`.
-- Configure application metadata.
-- Load the application stylesheet.
-- Initialize the main window.
-- Start the Qt event loop.
+These modules should not depend on PySide6 widgets.
 
-### 5.2 Main Window
+### 3.3 `visualization/`
 
-**File:** `app/main_window.py`
+Contains Matplotlib-based scientific diagrams.
 
-The `MainWindow` class manages the main application interface.
+Visualization modules should use calculation results rather than duplicate mathematical logic unnecessarily.
 
-Responsibilities:
+### 3.4 `ui/`
 
-- Initialize application pages.
-- Manage sidebar navigation.
-- Switch between pages.
-- Connect Home dashboard shortcuts.
-- Apply Light and Dark themes.
-- Coordinate persistent application settings.
+Contains graphical interface pages, reusable widgets, and user interaction logic.
 
-The implementation uses `QMainWindow` and `QStackedWidget`.
+### 3.5 `tests/`
 
-The v0.2.0 navigation structure contains five pages:
+Contains automated tests for scientific calculations, visualization, and GUI behavior.
 
-| Index | Page |
-|---|---|
-| 0 | Home |
-| 1 | Reflection |
-| 2 | Refraction |
-| 3 | Thin Lens |
-| 4 | Settings |
+### 3.6 `docs/`
 
-### 5.3 User Interface Pages
+Contains project specifications, design documentation, user instructions, and development procedures.
 
-**Directory:** `ui/pages/`
+---
 
-**Home Page — `home_page.py`**
+## 4. Coding Standards
 
-Provides the application's landing interface and shortcuts to optical calculators.
+### 4.1 Python Style
 
-**Reflection Page — `reflection_page.py`**
+Optik should follow PEP 8 conventions where practical.
 
-Accepts incident angles, calculates reflected angles, and displays optical ray diagrams.
+Recommended practices include:
 
-**Refraction Page — `refraction_page.py`**
+- Four spaces for indentation.
+- Descriptive variable and function names.
+- Type hints for public functions.
+- Docstrings for mathematical functions and public classes.
+- Small, focused functions.
+- Limited duplication.
+- Clear exception handling.
 
-Calculates refracted angles, critical angles, and total internal reflection conditions.
+### 4.2 Naming Conventions
 
-**Thin Lens Page — `lens_page.py`**
+| Element | Convention | Example |
+|---|---|---|
+| Modules | snake_case | `mirror_magnification.py` |
+| Functions | snake_case | `calculate_mirror_image_distance()` |
+| Variables | snake_case | `object_distance` |
+| Classes | PascalCase | `MirrorDiagram` |
+| Constants | UPPER_SNAKE_CASE | `DEFAULT_FOCAL_LENGTH` |
+| Test Files | test_ prefix | `test_mirrors.py` |
 
-Provides the thin lens calculator introduced in v0.2.0.
+### 4.3 Mathematical Function Design
 
-Responsibilities:
+Mathematical functions should:
 
-- Accept focal length, object distance, and object height.
-- Calculate image distance.
-- Calculate magnification and image height.
-- Display image orientation and size classification.
-- Identify lens type.
-- Generate and display lens ray diagrams.
-- Maintain calculation defaults using `QSettings`.
-- Apply the current plotting theme.
+1. Accept clearly defined inputs.
+2. Validate unsupported values.
+3. Apply the documented equation.
+4. Return results in predictable formats.
+5. Raise meaningful exceptions for invalid calculations.
 
-**Settings Page — `settings_page.py`**
+### 4.4 Data Structures
 
-Provides application preferences, including appearance settings.
+Use structured result objects when a calculation produces several related outputs.
 
-### 5.4 Optical Calculation Modules
+Python dataclasses are suitable for immutable scientific results.
 
-**Directory:** `optics/`
+Example:
 
-Calculation modules are independent of the graphical interface.
+```python
+from dataclasses import dataclass
 
-| Module | Responsibility |
-|---|---|
-| `reflection.py` | Law of reflection |
-| `refraction.py` | Refraction calculations |
-| `snells_law.py` | Snell's law |
-| `total_internal_reflection.py` | Critical angles and total internal reflection |
-| `thin_lens.py` | Thin lens image distance calculations |
-| `magnification.py` | Magnification, image height, and image properties |
+@dataclass(frozen=True)
+class OpticalResult:
+    focal_length: float
+    object_distance: float
+    image_distance: float
+```
 
-#### Thin Lens Equation
+### 4.5 Error Handling
 
-The ideal thin lens equation is:
-
-**1/f = 1/dₒ + 1/dᵢ**
-
-Where:
-
-- `f` represents focal length.
-- `dₒ` represents object distance.
-- `dᵢ` represents image distance.
-
-Under the application's real-object sign convention:
-
-- Positive focal length represents a converging lens.
-- Negative focal length represents a diverging lens.
-- Positive image distance represents a real image.
-- Negative image distance represents a virtual image.
-
-An object at the focal point of a converging lens produces an image at infinity in the idealized model.
-
-#### Magnification
-
-Signed magnification is calculated using:
-
-**m = −dᵢ / dₒ**
-
-Image height is calculated using:
-
-**hᵢ = m × hₒ**
-
-The sign of magnification determines image orientation, while its absolute value determines relative image size.
-
-### 5.5 Visualization Modules
-
-**Directory:** `visualization/`
-
-**Ray Diagram — `ray_diagram.py`**
-
-Provides the reflection and refraction diagrams introduced in v0.1.0.
-
-**Lens Diagram — `lens_diagram.py`**
-
-Generates thin lens diagrams with principal rays, focal points, the optical axis, and object/image representations.
-
-**Plot Manager — `plot_manager.py`**
-
-Provides a reusable Matplotlib widget for PySide6 pages.
-
-Features include:
-
-- Embedded Matplotlib canvas.
-- Navigation toolbar.
-- Figure and axes management.
-- Light and dark plotting themes.
-- Plot refreshing and clearing.
-- Line and scatter plotting utilities.
-- Integration with existing diagram objects.
-- Figure export to PNG, JPG, JPEG, SVG, and PDF.
-
-The Plot Manager handles replacement of the canvas and toolbar when a different Matplotlib figure is loaded.
-
-### 5.6 Shared UI Components
-
-**Directory:** `ui/widgets/`
-
-Reusable widgets support consistent interface behavior.
+Expected mathematical errors should be handled explicitly.
 
 Examples include:
 
-- `Sidebar`
-- `MetricCard`
-- `InputPanel`
+- Division by zero.
+- Non-finite inputs.
+- Invalid refractive indices.
+- Unsupported optical configurations.
+- Invalid distances under the selected model.
 
-Shared components should remain independent of individual optical calculation modules wherever practical.
+Avoid silently returning incorrect numerical results.
 
-### 5.7 Utilities
+### 4.6 GUI Development
 
-**Directory:** `utils/`
+GUI pages should:
 
-Utility modules provide shared validation, constants, and supporting functions.
+- Keep layout code separate from mathematical calculations.
+- Use PySide6 signals and slots for interaction.
+- Validate user input.
+- Display readable results.
+- Provide consistent styling.
+- Support application themes where required.
 
-Avoid duplicating common validation logic across calculation modules.
+---
 
-## 6. Development Principles
+## 5. Scientific Calculation Development
 
-Optik follows these principles:
+### 5.1 Implementation Workflow
 
-1. Separate optical physics from the graphical interface.
-2. Keep numerical calculation functions independently testable.
-3. Use reusable visualization components.
-4. Validate numerical inputs and handle exceptional conditions.
-5. Keep application navigation and appearance consistent.
-6. Preserve existing functionality when adding new features.
-7. Document new modules and changes.
-8. Write automated tests for calculations and GUI behavior.
+For a new optical calculation module:
 
-## 7. Testing
+1. Identify the governing equations.
+2. Document the sign conventions.
+3. Determine valid input ranges.
+4. Identify special mathematical cases.
+5. Implement the calculation functions.
+6. Create automated unit tests.
+7. Verify numerical results against known examples.
+8. Integrate the module into the GUI.
 
-Optik uses pytest and pytest-qt.
+### 5.2 Numerical Accuracy
 
-### 7.1 Run the Complete Test Suite
+Calculation tests should use appropriate floating-point tolerances.
 
-```powershell
+Example:
+
+```python
+import pytest
+
+def test_example_calculation():
+    result = 15.0
+    assert result == pytest.approx(15.0)
+```
+
+### 5.3 Sign Conventions
+
+Each optical model must clearly document its sign conventions.
+
+For example, the current spherical mirror module uses:
+
+- Positive focal length for concave mirrors.
+- Negative focal length for convex mirrors.
+- Positive image distance for real images.
+- Negative image distance for virtual images.
+
+### 5.4 Special Cases
+
+Special cases should be explicitly considered during implementation.
+
+Examples include:
+
+- Images at infinity.
+- Total internal reflection.
+- Undefined magnification.
+- Invalid denominators.
+- Non-finite numerical inputs.
+
+---
+
+## 6. Visualization Development
+
+### 6.1 Matplotlib
+
+Optik uses Matplotlib for optical ray diagrams.
+
+Visualization modules should manage:
+
+- Figure creation.
+- Optical axes.
+- Object and image positions.
+- Optical reference points.
+- Ray geometry.
+- Labels.
+- Diagram clearing.
+- Figure export, when supported.
+
+### 6.2 Visualization Testing
+
+Tests should verify that:
+
+- Figures are created successfully.
+- Expected optical elements are present.
+- Ray geometry is consistent with the mathematical model.
+- Special optical cases do not cause unexpected errors.
+- Diagram export works where implemented.
+
+### 6.3 GUI Integration
+
+Matplotlib figures may be embedded into PySide6 pages using:
+
+```python
+from matplotlib.backends.backend_qtagg import FigureCanvasQTAgg
+```
+
+A navigation toolbar may be included where appropriate.
+
+---
+
+## 7. Testing Standards
+
+### 7.1 Testing Frameworks
+
+Optik uses:
+
+- pytest for mathematical and application logic tests.
+- pytest-qt for GUI tests.
+- Matplotlib-compatible tests for scientific diagrams.
+
+### 7.2 Run All Tests
+
+```bash
 python -m pytest tests/ -v
 ```
 
-### 7.2 Run Physics Tests
+### 7.3 Run a Specific Test File
 
-```powershell
-python -m pytest tests/test_thin_lens.py -v
-python -m pytest tests/test_magnification.py -v
+```bash
+python -m pytest tests/test_mirrors.py -v
 ```
 
-### 7.3 Run Visualization Tests
+### 7.4 Run Tests Quietly
 
-```powershell
-python -m pytest tests/test_lens_diagram.py -v
-python -m pytest tests/test_plot_manager.py -v
+```bash
+python -m pytest tests/ -q
 ```
 
-### 7.4 Run Main Window Tests
+### 7.5 Test Discovery
 
-```powershell
-python -m pytest tests/test_main_window.py -v
+```bash
+python -m pytest --collect-only -q
 ```
 
-### 7.5 GUI Testing
+### 7.6 Unit Test Coverage
 
-GUI tests should verify:
+Unit tests should include:
 
-- Page initialization.
-- Navigation between pages.
-- Input controls.
+- Standard numerical cases.
+- Boundary conditions.
+- Invalid inputs.
+- Special mathematical cases.
+- Result classifications.
+
+### 7.7 GUI Test Coverage
+
+GUI tests should include:
+
+- Widget initialization.
+- Default input values.
+- Button interactions.
 - Calculation results.
+- Navigation.
+- Settings persistence.
+- Theme behavior.
+
+### 7.8 Regression Testing
+
+Regression testing ensures that newly introduced features do not unintentionally break existing functionality.
+
+The complete test suite should be executed after significant changes.
+
+A passing regression suite is required before preparing a release.
+
+### 7.9 Manual GUI Verification
+
+Automated tests do not replace manual interface testing.
+
+Before publishing a release, verify:
+
+- Application startup.
+- Sidebar navigation.
+- Home dashboard navigation.
+- Calculator functionality.
+- Diagram rendering.
+- Theme switching.
+- Settings persistence.
 - Error handling.
-- Theme compatibility.
-- Diagram updates.
-- Persistent settings where applicable.
 
-### 7.6 Numerical Boundary Conditions
+---
 
-Important thin lens test cases include:
+## 8. Git and GitHub Workflow
 
-- Converging lenses.
-- Diverging lenses.
-- Real image formation.
-- Virtual image formation.
-- Objects at the focal point.
-- Objects inside the focal length.
-- Magnification greater than one.
-- Magnification less than one.
-- Invalid or zero-valued inputs where prohibited.
+### 8.1 Branching Strategy
 
-### 7.7 Release Verification
+Optik may use version-specific development branches.
 
-Before publishing a version:
+Example:
 
-1. Run the complete automated test suite.
-2. Perform manual GUI checks.
-3. Verify navigation and theme switching.
-4. Review the physics calculations and diagrams.
-5. Update documentation.
-6. Review Git changes.
-7. Create the release commit and version tag.
-8. Publish the release when ready.
+```text
+main
+version-0.1
+version-0.2
+version-0.3
+```
 
-## 8. Coding Standards
+The `main` branch should represent the intended stable project state.
 
-### 8.1 Python
+Development branches allow new features to be implemented and tested before integration.
 
-- Follow PEP 8 conventions.
-- Use descriptive function and variable names.
-- Add type hints where appropriate.
-- Write docstrings for public functions and classes.
-- Prefer small, focused functions.
-- Keep physics logic separate from GUI code.
+### 8.2 Create a Development Branch
 
-### 8.2 Error Handling
+```bash
+git switch -c version-0.4
+```
 
-- Validate inputs before performing calculations.
-- Raise appropriate exceptions for invalid calculation inputs.
-- Handle exceptional mathematical conditions explicitly.
-- Display understandable error messages in the GUI.
-
-### 8.3 Scientific Accuracy
-
-- Document mathematical equations and assumptions.
-- Use consistent sign conventions.
-- Distinguish physical results from visualization approximations.
-- Include boundary-condition tests.
-- Avoid presenting idealized diagrams as full physical simulations.
-
-## 9. Git and Version Control
-
-Git is used to track Optik development.
-
-### 9.1 Check Repository Status
+### 8.3 Check Repository Status
 
 ```bash
 git status
 ```
 
-### 9.2 Create a Development Branch
-
-Example:
-
-```bash
-git switch -c version-0.2
-```
-
-Create the branch only if it does not already exist.
-
-### 9.3 Stage Changes
+### 8.4 Stage Changes
 
 ```bash
 git add .
 ```
 
-### 9.4 Commit Changes
+Review the staged changes before committing:
 
 ```bash
-git commit -m "docs: update Optik documentation for v0.2.0"
+git diff --cached
 ```
 
-### 9.5 Push Changes
+### 8.5 Commit Changes
+
+Use descriptive commit messages.
+
+Examples:
 
 ```bash
-git push -u origin version-0.2
+git commit -m "feat: add spherical mirror calculations"
 ```
 
-Use the branch that contains the current development work.
-
-### 9.6 Version Tags
-
-After release verification, create an annotated version tag:
+```bash
+git commit -m "test: add mirror optics regression tests"
+```
 
 ```bash
-git tag -a v0.2.0 -m "Optik v0.2.0 - Thin Lens Optics"
+git commit -m "docs: update versioned project documentation"
+```
+
+### 8.6 Push Changes
+
+```bash
+git push -u origin version-0.4
+```
+
+### 8.7 Commit Message Conventions
+
+Recommended prefixes:
+
+| Prefix | Purpose |
+|---|---|
+| feat | New functionality |
+| fix | Bug correction |
+| test | Test additions or changes |
+| docs | Documentation |
+| refactor | Code restructuring |
+| chore | Maintenance |
+| build | Packaging and build changes |
+
+### 8.8 Version Tags
+
+Create an annotated tag after a release has been validated and committed.
+
+```bash
+git tag -a v0.3.0 -m "Optik v0.3.0 - Mirror Optics"
 ```
 
 Push the tag:
 
 ```bash
-git push origin v0.2.0
+git push origin v0.3.0
 ```
 
-Do not create the final release tag until the version is ready for publication.
+Do not create the final release tag until the release is ready.
 
-## 10. Contribution Workflow
+---
 
-Contributors should:
+## 9. Release Preparation
 
-1. Review the README and contribution guidelines.
-2. Create a feature or bug-fix branch.
-3. Implement changes using the modular architecture.
-4. Add or update relevant tests.
-5. Run the test suite.
-6. Update affected documentation.
-7. Submit a pull request describing the changes.
+### 9.1 Release Checklist
 
-For additional information, see `CONTRIBUTING.md`.
+Before publishing a new version:
 
-## 11. Version Development
+- [ ] Complete planned functionality.
+- [ ] Verify mathematical calculations.
+- [ ] Complete unit tests.
+- [ ] Complete GUI tests.
+- [ ] Complete visualization tests.
+- [ ] Run the regression suite.
+- [ ] Perform manual GUI verification.
+- [ ] Review error handling.
+- [ ] Update application version labels.
+- [ ] Update README.md.
+- [ ] Update CHANGELOG.md.
+- [ ] Update SRS.md.
+- [ ] Update SDD.md.
+- [ ] Update USER_GUIDE.md.
+- [ ] Update DEVELOPMENT.md.
+- [ ] Verify distribution packages, if applicable.
+- [ ] Commit the final changes.
+- [ ] Merge or integrate the release branch.
+- [ ] Create the Git version tag.
+- [ ] Publish the GitHub release.
 
-### v0.1.0 — Initial Geometrical Optics
+### 9.2 Windows Packaging
 
-- Reflection.
-- Refraction.
-- Snell's law.
-- Critical angles.
-- Total internal reflection.
-- Basic ray diagrams.
-- Desktop application framework.
+PyInstaller may be used to create a Windows executable.
 
-### v0.2.0 — Thin Lens Optics
+An example build command is:
+
+```bash
+python -m PyInstaller --noconfirm --windowed --name Optik app/main_window.py
+```
+
+Packaging settings may require additional adjustments for dependencies, resources, and application entry points.
+
+The resulting executable should be tested before distribution.
+
+### 9.3 Release Notes
+
+Release notes should summarize:
+
+- New features.
+- Important improvements.
+- Bug fixes.
+- Testing status.
+- Known limitations.
+- Installation or upgrade considerations.
+
+---
+
+# 10. Version-Specific Development History
+
+The following sections record implementation decisions and testing milestones for each development version.
+
+---
+
+## 10.1 Version 0.1.0 — Initial Optics Release
+
+**Status:** Completed
+
+### Development Scope
+
+Version 0.1.0 established Optik's core application architecture.
+
+### Implemented Features
+
+- Reflection calculations.
+- Refraction calculations.
+- Critical-angle calculations.
+- Total internal reflection detection.
+- Reflection ray diagrams.
+- Refraction ray diagrams.
+- Home dashboard.
+- Sidebar navigation.
+- Settings page.
+- Light and dark themes.
+
+### Architecture
+
+The initial architecture separated:
+
+- Mathematical calculations.
+- Visualization components.
+- GUI pages.
+- Main application management.
+
+### Testing
+
+Initial unit tests and GUI tests were developed for reflection and refraction functionality.
+
+### Development Outcome
+
+Version 0.1.0 established the foundation for future optical calculation modules.
+
+---
+
+## 10.2 Version 0.2.0 — Thin Lens Optics
+
+**Status:** Development Completed
+
+### Development Scope
+
+Version 0.2.0 introduced thin lens image formation calculations and expanded scientific visualization capabilities.
+
+### Implemented Features
+
+- Thin lens equation.
+- Converging lenses.
+- Diverging lenses.
+- Magnification.
+- Image height.
+- Image classification.
+- Thin lens ray diagrams.
+- Dedicated Thin Lens GUI page.
+- Reusable PlotManager functionality.
+
+### Architecture Changes
+
+New scientific modules were introduced for thin lens calculations and magnification.
+
+The visualization architecture was extended to support additional optical diagrams.
+
+The main window and Home dashboard were updated to include the Thin Lens page.
+
+### Testing
+
+Testing covered:
 
 - Thin lens calculations.
-- Converging and diverging lenses.
 - Magnification.
 - Image classification.
 - Lens ray diagrams.
-- Reusable Plot Manager.
-- Expanded navigation.
-- Additional automated tests.
+- Thin Lens GUI functionality.
 
-### v0.3.0 — Planned Mirror Optics
+### Development Outcome
 
-- Concave mirrors.
-- Convex mirrors.
-- Mirror equation calculations.
+Version 0.2.0 expanded Optik from reflection and refraction into optical image formation.
+
+---
+
+## 10.3 Version 0.3.0 — Mirror Optics
+
+**Status:** In Development
+
+### Development Scope
+
+Version 0.3.0 introduces spherical mirror calculations and ray diagrams.
+
+### Implemented Features
+
+- Concave mirror calculations.
+- Convex mirror calculations.
+- Mirror image distance.
+- Radius of curvature.
 - Mirror magnification.
+- Mirror image height.
+- Real and virtual image classification.
+- Image orientation classification.
+- Image size classification.
 - Mirror ray diagrams.
-- GUI integration and testing.
+- Dedicated Mirror Optics page.
+- Mirror navigation integration.
+- Persistent mirror calculator settings.
 
-## 12. Known Development Limitations
+### New Scientific Modules
 
-Optik currently uses idealized geometrical optics models.
+**`optics/mirrors.py`**
 
-The thin lens calculations assume ideal thin lenses and paraxial rays.
+Implements spherical mirror equations, mirror classification, image distance, and radius of curvature.
 
-Current limitations include:
+**`optics/mirror_magnification.py`**
 
-- No diffraction simulation.
-- No interference simulation.
-- No polarization modeling.
-- No optical aberration calculations.
-- No advanced multi-element optical system modeling.
-- No complete electromagnetic wave simulation.
+Implements magnification, image height, orientation, and image size classification.
 
-Future versions may address these limitations.
+### New Visualization Module
 
-## 13. License
+**`visualization/mirror_diagram.py`**
 
-Optik is distributed under the MIT License.
+Provides the `MirrorDiagram` class for generating concave and convex mirror ray diagrams.
 
-Refer to the repository's `LICENSE` file for the complete license terms.
+### New GUI Module
+
+**`ui/pages/mirror_page.py`**
+
+Provides the Mirror Optics calculator interface.
+
+### Main Window Integration
+
+The main window was updated to support six pages.
+
+The Home dashboard was expanded with a Mirror Optics feature card.
+
+Keyboard navigation was updated to include the new page.
+
+### Testing
+
+The following test modules were developed:
+
+- `tests/test_mirrors.py`
+- `tests/test_mirror_magnification.py`
+- `tests/test_mirror_diagram.py`
+- `tests/test_mirror_page.py`
+
+Existing magnification tests were also updated to match the supported calculation conventions.
+
+### Regression Testing
+
+The complete automated unit test suite has passed.
+
+### Remaining Release Tasks
+
+- [ ] Complete manual GUI verification.
+- [ ] Finalize project documentation.
+- [ ] Validate Windows packaging, if applicable.
+- [ ] Complete release preparation.
+- [ ] Publish the final GitHub release and tag.
+
+### Development Outcome
+
+The Mirror Optics calculation and GUI modules have been implemented and have passed automated testing.
+
+Version 0.3.0 remains in development until release preparation is completed.
+
+---
+
+# 11. Documentation Maintenance Policy
+
+Optik uses a versioned, append-only documentation strategy.
+
+### 11.1 Permanent Development Sections
+
+The following sections establish the current development workflow:
+
+- Development environment.
+- Project organization.
+- Coding standards.
+- Scientific calculation development.
+- Visualization development.
+- Testing standards.
+- Git and GitHub workflow.
+- Release preparation.
+
+These sections should be updated when the project's general development practices change.
+
+### 11.2 Version-Specific Development Sections
+
+Each release receives a new section documenting:
+
+- Development scope.
+- Implemented features.
+- New scientific modules.
+- New visualization modules.
+- New GUI components.
+- Architecture changes.
+- Testing results.
+- Known limitations.
+- Development outcome.
+
+### 11.3 Historical Preservation
+
+Previous version sections should be preserved.
+
+If a future version replaces an earlier implementation, document the change in the new version section.
+
+Historical errors may be corrected with appropriate revision notes.
+
+---
+
+# 12. Future Version Template
+
+Append the following section when beginning a new development version.
+
+```markdown
+## 10.X Version X.Y.Z — Release Title
+
+**Status:** In Development
+
+### Development Scope
+
+### Implemented Features
+
+### New Scientific Modules
+
+### New Visualization Modules
+
+### New GUI Components
+
+### Architecture Changes
+
+### Testing
+
+### Regression Testing
+
+### Known Limitations
+
+### Remaining Release Tasks
+
+### Development Outcome
+```
+
+Only include headings that apply to the release.
+
+---
+
+# 13. Document Revision History
+
+| Revision | Software Version | Description |
+|---|---|---|
+| 1.0 | v0.1.0 | Initial development practices and architecture |
+| 1.1 | v0.2.0 | Thin lens development and visualization workflow |
+| 1.2 | v0.3.0 | Mirror optics development and versioned documentation structure |
+
+---
+
+# 14. Additional Documentation
+
+The following documents provide further project information:
+
+- `README.md` — Project overview and installation.
+- `CHANGELOG.md` — Version-specific release changes.
+- `docs/SRS.md` — Software Requirements Specification.
+- `docs/SDD.md` — Software Design Document.
+- `docs/USER_GUIDE.md` — Application usage instructions.
+- `LICENSE` — MIT License.
+
+---
+
+**Optik — Exploring Optics and Photonics Through Scientific Computing.**
+
+**End of Development Guide**

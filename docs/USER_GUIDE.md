@@ -1,626 +1,873 @@
 # Optik — User Guide
 
-**Version:** 0.2.0  
-**Application:** Optik  
-**Category:** Optics and Photonics Desktop Software  
-**Status:** Release Candidate
+**Project:** Optik — Open-Source Optics & Photonics Desktop Application  
+**Current Development Version:** v0.3.0  
+**Document Status:** Maintained  
+**License:** MIT
 
 ---
 
 ## 1. Introduction
 
-Optik is an open-source desktop application designed to help users perform fundamental optical calculations and visualize light-ray behavior.
+### 1.1 Purpose
 
-Version 0.2.0 expands the original geometrical optics functionality with thin lens calculations, magnification, image classification, and additional scientific visualization capabilities.
+Optik is an open-source scientific desktop application developed using Python and PySide6.
 
-The application currently includes:
+It provides interactive tools for performing optical calculations and visualizing geometrical optics through ray diagrams.
 
-- Reflection calculator.
-- Refraction calculator.
-- Critical-angle calculations.
-- Total internal reflection detection.
-- Thin Lens calculator.
-- Magnification and image height calculations.
-- Converging and diverging lens ray diagrams.
-- Two-dimensional optical visualization.
-- Light and Dark appearance themes.
+This User Guide explains how to install, navigate, and use Optik's scientific calculation modules.
 
-Optik is intended for students, educators, researchers, engineers, and individuals interested in optics and photonics.
+### 1.2 Intended Users
 
-## 2. System Requirements
+Optik is designed for:
 
-### 2.1 Software
+- Students studying physics, optics, and photonics.
+- Educators demonstrating optical principles.
+- Researchers exploring geometrical optics.
+- Engineers performing introductory optical calculations.
+- Individuals interested in optical science.
 
-- Compatible Python 3 installation.
+### 1.3 Supported Features
+
+Through v0.3.0, Optik includes:
+
+| Module | Description | Introduced |
+|---|---|---|
+| Reflection | Law of reflection calculations and diagrams | v0.1.0 |
+| Refraction | Snell's law, critical angles, and total internal reflection | v0.1.0 |
+| Thin Lenses | Image formation and magnification for thin lenses | v0.2.0 |
+| Mirror Optics | Image formation and magnification for spherical mirrors | v0.3.0 |
+| Settings | Application appearance and preferences | v0.1.0 |
+
+---
+
+## 2. Installation and Startup
+
+### 2.1 System Requirements
+
+To run Optik from source, you need:
+
+- A compatible Python 3 installation.
 - PySide6.
 - Matplotlib.
-- NumPy.
-- SciPy.
+- Other dependencies specified by the project.
+- A graphical desktop environment.
 
-Python 3.14 is the primary development environment. Compatibility with other Python versions depends on the installed package versions.
+The application is primarily developed for desktop use.
 
-### 2.2 Operating System
+### 2.2 Download the Source Code
 
-Windows is the primary development environment.
+Clone the Optik repository using Git:
 
-Other desktop operating systems may be supported if compatible Python and Qt dependencies are available.
+```bash
+git clone https://github.com/YOUR_USERNAME/Optik.git
+cd Optik
+```
 
-## 3. Installation
+Replace `YOUR_USERNAME` with the repository owner's GitHub username.
 
-### Step 1: Obtain the Source Code
+Alternatively, download the repository as a ZIP archive and extract it.
 
-Download or clone the Optik repository.
-
-### Step 2: Open a Terminal
-
-Navigate to the Optik project directory.
-
-### Step 3: Create a Virtual Environment
+### 2.3 Create a Virtual Environment
 
 On Windows:
 
 ```powershell
 python -m venv .venv
+.venv\Scripts\activate
 ```
 
-Activate the environment:
-
-```powershell
-.venv\Scripts\Activate.ps1
-```
-
-On Linux/macOS:
+On Linux or macOS:
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-### Step 4: Install Dependencies
+### 2.4 Install Dependencies
 
-```powershell
+From the project directory, run:
+
+```bash
 python -m pip install -r requirements.txt
 ```
 
-### Step 5: Launch Optik
+### 2.5 Launch Optik
 
-```powershell
-python main.py
+Run the application using:
+
+```bash
+python -m app.main_window
 ```
 
-The Optik main window should appear.
+The Optik main window should appear with the Home dashboard and navigation sidebar.
 
-## 4. Application Navigation
+### 2.6 Windows Executable
 
-Optik v0.2.0 provides five main pages.
+If a Windows executable is included in a published release, use the installation or startup instructions provided with that release.
 
-| Page | Description |
+An executable is not assumed to be available for every development version.
+
+---
+
+## 3. Application Interface
+
+### 3.1 Main Window
+
+Optik's main window contains:
+
+- A navigation sidebar.
+- A Home dashboard.
+- Dedicated scientific calculator pages.
+- A Settings page.
+- Calculation input controls.
+- Numerical result displays.
+- Scientific diagrams.
+
+### 3.2 Navigation Sidebar
+
+Use the sidebar to switch between calculation modules.
+
+The available pages in v0.3.0 are:
+
+| Page | Shortcut |
 |---|---|
-| Home | Application overview and calculator shortcuts |
-| Reflection | Reflection calculations and ray visualization |
-| Refraction | Refraction, critical-angle, and total internal reflection calculations |
-| Thin Lens | Lens calculations, magnification, and image formation diagrams |
-| Settings | Application preferences and appearance settings |
+| Home | Ctrl+1 |
+| Reflection | Ctrl+2 |
+| Refraction | Ctrl+3 |
+| Thin Lenses | Ctrl+4 |
+| Mirror Optics | Ctrl+5 |
+| Settings | Ctrl+6 |
 
-### 4.1 Home
+### 3.3 Home Dashboard
 
-The Home page serves as the application's landing page.
+The Home dashboard provides quick access to Optik's scientific calculators.
 
-It provides shortcuts to the available optical calculators.
+Each feature card identifies a calculation module and includes an Open Calculator button.
 
-Select the Thin Lens feature card to open the Thin Lens calculator.
+To open a module:
 
-### 4.2 Sidebar
+1. Navigate to Home.
+2. Locate the desired feature card.
+3. Select Open Calculator.
+4. Enter the required optical parameters.
 
-Use the sidebar to switch between the available application pages.
+### 3.4 Calculation Workflow
 
-The selected page appears in the main content area.
+Most Optik calculators follow a similar workflow:
 
-### 4.3 Settings
+1. Open the calculator.
+2. Enter the required parameters.
+3. Select Calculate.
+4. Review the numerical results.
+5. Examine the generated ray diagram, if available.
+6. Modify the inputs and recalculate as needed.
 
-The Settings page provides application preferences.
+### 3.5 Settings and Themes
 
-Optik supports Light and Dark appearance themes.
+Optik supports light and dark themes.
 
-Supported settings are saved between application sessions.
+To change the appearance:
 
-## 5. Reflection Calculator
+1. Open Settings.
+2. Select the desired theme.
+3. Return to the calculator.
 
-### 5.1 Purpose
+Supported preferences are stored between sessions using Qt's application settings system.
 
-The Reflection Calculator determines the angle of reflection for an incident light ray.
+---
 
-The calculation follows:
+# 4. Version-Specific User Instructions
 
-**θᵣ = θᵢ**
+This section documents features introduced by each Optik version.
+
+New releases append additional sections without replacing the historical instructions.
+
+---
+
+## 4.1 Version 0.1.0 — Reflection and Refraction
+
+**Status:** Completed
+
+### 4.1.1 Reflection Calculator
+
+The Reflection calculator determines the direction of reflected light using the law of reflection.
+
+The governing equation is:
+
+\[
+\theta_r=\theta_i
+\]
 
 Where:
 
-- θᵣ is the reflected angle.
-- θᵢ is the incident angle.
+- \(\theta_i\) is the incident angle.
+- \(\theta_r\) is the reflected angle.
 
 Both angles are measured relative to the surface normal.
 
-### 5.2 Instructions
+### How to Use Reflection
 
 1. Open the Reflection page.
-2. Locate the Incident Angle input.
-3. Enter an angle between 0° and 90°.
-4. Click **Calculate Reflection**.
-5. Review the reflected angle.
-6. Examine the optical ray diagram.
+2. Enter the incident angle.
+3. Select Calculate.
+4. Review the reflected angle.
+5. Examine the reflection ray diagram.
 
-### 5.3 Example
+### Example
 
-**Input**
+**Input:**
 
-Incident Angle = 45°
+Incident angle: 35°
 
-**Expected output**
+**Expected Result:**
 
-Reflected Angle = 45.00°
+Reflected angle: 35°
 
-The diagram displays incident and reflected rays at equal angles to the normal.
+The incident and reflected rays make equal angles with the surface normal.
 
-## 6. Refraction Calculator
+### 4.1.2 Refraction Calculator
 
-### 6.1 Purpose
+The Refraction calculator determines how light changes direction when traveling between two optical media.
 
-The Refraction Calculator determines the direction of light as it passes between two optical media.
+It uses Snell's law:
 
-The calculation follows Snell's law:
-
-**n₁ sin(θ₁) = n₂ sin(θ₂)**
+\[
+n_1\sin(\theta_1)=n_2\sin(\theta_2)
+\]
 
 Where:
 
-- n₁ is the refractive index of the incident medium.
-- n₂ is the refractive index of the transmitted medium.
-- θ₁ is the incident angle.
-- θ₂ is the refracted angle.
+- \(n_1\) is the refractive index of the first medium.
+- \(n_2\) is the refractive index of the second medium.
+- \(\theta_1\) is the incident angle.
+- \(\theta_2\) is the refracted angle.
 
-### 6.2 Instructions
+### How to Use Refraction
 
 1. Open the Refraction page.
 2. Enter the first refractive index.
 3. Enter the second refractive index.
 4. Enter the incident angle.
-5. Click **Calculate Refraction**.
-6. Review the calculated results.
-7. Examine the optical ray diagram.
+5. Select Calculate.
+6. Review the refracted angle and any additional optical results.
+7. Examine the refraction ray diagram.
 
-### 6.3 Example: Air to Glass
+### Example
 
-**Input**
+**Inputs:**
 
-- n₁ = 1.0
-- n₂ = 1.5
-- Incident Angle = 30°
+| Parameter | Value |
+|---|---|
+| First refractive index | 1.00 |
+| Second refractive index | 1.50 |
+| Incident angle | 45° |
 
-**Expected output**
+**Expected Result:**
 
-Refracted Angle ≈ 19.47°
+Refracted angle: approximately 28.13°.
 
-The refracted ray bends toward the surface normal.
+The light bends toward the normal because it enters a medium with a higher refractive index.
 
-## 7. Critical Angle
+### 4.1.3 Critical Angle
 
-### 7.1 Purpose
+The critical angle is the incident angle at which the refracted ray travels along the boundary between two media.
 
-The critical angle represents the incident angle at which the refracted ray travels along the boundary between two media.
+It is calculated using:
 
-The calculation applies when:
+\[
+\theta_c=\sin^{-1}\left(\frac{n_2}{n_1}\right)
+\]
 
-**n₁ > n₂**
+This equation applies when:
 
-The equation is:
+\[
+n_1>n_2
+\]
 
-**θc = arcsin(n₂ / n₁)**
+### Example
 
-### 7.2 Example
+For light traveling from glass into air:
 
-**Input**
+- Glass refractive index: 1.50.
+- Air refractive index: 1.00.
 
-- n₁ = 1.5
-- n₂ = 1.0
+The critical angle is approximately 41.81°.
 
-**Expected output**
+### 4.1.4 Total Internal Reflection
 
-Critical Angle ≈ 41.81°
+Total internal reflection occurs when:
 
-When n₁ ≤ n₂, the critical angle is not applicable.
+- Light travels from a higher refractive index to a lower refractive index.
+- The incident angle exceeds the critical angle.
 
-## 8. Total Internal Reflection
+Under these conditions, the idealized model has no transmitted refracted ray.
 
-### 8.1 Purpose
+---
 
-Total internal reflection occurs when light travels from a higher refractive index to a lower refractive index and the incident angle exceeds the critical angle.
+## 4.2 Version 0.2.0 — Thin Lens Optics
 
-### 8.2 Example
+**Status:** Development Completed
 
-**Input**
+### 4.2.1 Overview
 
-- n₁ = 1.5
-- n₂ = 1.0
-- Incident Angle = 50°
+Version 0.2.0 introduces thin lens image formation calculations.
 
-**Expected output**
+The calculator supports:
 
-- Total Internal Reflection: Yes
-- Critical Angle: 41.81°
-- Refracted Angle: No transmitted ray (TIR)
+- Converging lenses.
+- Diverging lenses.
+- Image distance.
+- Magnification.
+- Image height.
+- Image orientation.
+- Image size.
+- Ray diagrams.
 
-The diagram displays incident and reflected rays without a transmitted ray.
+### 4.2.2 Thin Lens Equation
 
-## 9. Thin Lens Calculator
+The thin lens equation is:
 
-### 9.1 Purpose
-
-The Thin Lens Calculator determines image formation properties for ideal converging and diverging lenses.
-
-The calculator uses the thin lens equation:
-
-**1/f = 1/dₒ + 1/dᵢ**
+\[
+\frac{1}{f}=\frac{1}{d_o}+\frac{1}{d_i}
+\]
 
 Where:
 
-- f = Focal length.
-- dₒ = Object distance.
-- dᵢ = Image distance.
+- \(f\) is focal length.
+- \(d_o\) is object distance.
+- \(d_i\) is image distance.
 
-The calculator also determines magnification, image height, image orientation, and relative image size.
+For the convention used in the calculator:
 
-### 9.2 Opening the Calculator
+- Positive focal length represents a converging lens.
+- Negative focal length represents a diverging lens.
+- Positive image distance represents a real image.
+- Negative image distance represents a virtual image.
+
+### 4.2.3 How to Use Thin Lenses
+
+1. Open the Thin Lenses page.
+2. Select the lens type, if a lens-type selector is provided.
+3. Enter the focal length.
+4. Enter the object distance.
+5. Enter the object height, where supported.
+6. Select Calculate.
+7. Review the image distance and magnification.
+8. Examine the ray diagram.
+
+### 4.2.4 Converging Lens Example
+
+**Inputs:**
+
+| Parameter | Value |
+|---|---|
+| Focal length | +10 cm |
+| Object distance | 30 cm |
+| Object height | 5 cm |
+
+**Expected Results:**
+
+| Result | Value |
+|---|---|
+| Image distance | +15 cm |
+| Magnification | -0.50 |
+| Image height | -2.50 cm |
+| Image type | Real |
+| Orientation | Inverted |
+| Image size | Reduced |
+
+### 4.2.5 Diverging Lens Example
+
+**Inputs:**
+
+| Parameter | Value |
+|---|---|
+| Focal length | -10 cm |
+| Object distance | 30 cm |
+| Object height | 5 cm |
+
+**Expected Results:**
+
+| Result | Value |
+|---|---|
+| Image distance | -7.50 cm |
+| Magnification | +0.25 |
+| Image height | +1.25 cm |
+| Image type | Virtual |
+| Orientation | Upright |
+| Image size | Reduced |
+
+### 4.2.6 Magnification
+
+Magnification is calculated using:
+
+\[
+m=-\frac{d_i}{d_o}
+\]
+
+Image height is calculated using:
+
+\[
+h_i=mh_o
+\]
+
+Interpretation:
+
+| Magnification | Meaning |
+|---|---|
+| Positive | Upright image |
+| Negative | Inverted image |
+| Absolute value greater than 1 | Enlarged |
+| Absolute value less than 1 | Reduced |
+| Absolute value equal to 1 | Same size |
+
+### 4.2.7 Lens Ray Diagrams
+
+The Thin Lens page includes ray diagrams illustrating optical image formation.
+
+Depending on the optical configuration, the diagrams may display:
+
+- The principal optical axis.
+- The lens.
+- Focal points.
+- Object position.
+- Image position.
+- Principal rays.
+- Virtual ray extensions.
+
+These diagrams represent idealized thin lens optics.
+
+---
+
+## 4.3 Version 0.3.0 — Mirror Optics
+
+**Status:** In Development
+
+### 4.3.1 Overview
+
+Version 0.3.0 introduces spherical mirror calculations.
+
+The Mirror Optics module supports:
+
+- Concave mirrors.
+- Convex mirrors.
+- Image distance.
+- Radius of curvature.
+- Magnification.
+- Image height.
+- Real and virtual image classification.
+- Upright and inverted image classification.
+- Image size classification.
+- Mirror ray diagrams.
+
+### 4.3.2 Opening Mirror Optics
+
+To access the Mirror Optics calculator:
 
 1. Launch Optik.
-2. Select **Thin Lens** from the sidebar, or open it from the Home dashboard.
-3. Locate the lens input controls.
+2. Select Mirror Optics from the sidebar, or select its feature card on Home.
+3. Enter the optical parameters.
+4. Select Calculate.
 
-### 9.3 Input Parameters
+You can also press `Ctrl+5` to navigate directly to the Mirror Optics page.
 
-The Thin Lens calculator accepts three main inputs.
+### 4.3.3 Mirror Calculator Inputs
 
-| Input | Description |
-|---|---|
-| Focal Length | Focal length of the lens |
-| Object Distance | Distance between the object and lens |
-| Object Height | Height of the object |
+| Input | Description | Default |
+|---|---|---|
+| Mirror Type | Concave or Convex | Concave |
+| Focal Length | Magnitude of focal length | 10 |
+| Object Distance | Distance from object to mirror | 30 |
+| Object Height | Height of object | 5 |
 
-Use consistent distance units. For example, enter all three measurements in centimeters.
+The calculator uses the selected mirror type to determine the focal length sign.
 
-### 9.4 Instructions
+Use consistent distance units for all inputs.
 
-1. Open the Thin Lens page.
-2. Enter the focal length.
-3. Enter the object distance.
-4. Enter the object height.
-5. Click **Calculate**.
-6. Review the image distance and magnification.
-7. Review the image height, orientation, and size classification.
-8. Examine the lens ray diagram.
+### 4.3.4 Spherical Mirror Equation
 
-The diagram updates when a new calculation is performed.
+The spherical mirror equation is:
 
-### 9.5 Converging Lenses
+\[
+\frac{1}{f}=\frac{1}{d_o}+\frac{1}{d_i}
+\]
 
-A converging lens has a positive focal length.
+The image distance can be calculated as:
 
-Depending on the object position, it may produce a real or virtual image.
-
-**Example: Real image formation**
-
-Input:
-
-- Focal Length = +10 cm
-- Object Distance = 30 cm
-- Object Height = 5 cm
-
-Expected results:
-
-- Image Distance = +15 cm
-- Magnification = −0.50
-- Image Height = −2.50 cm
-- Orientation = Inverted
-- Image Size = Reduced
-- Image Type = Real
-
-The image forms on the opposite side of the lens.
-
-### 9.6 Diverging Lenses
-
-A diverging lens has a negative focal length.
-
-For a real object, an ideal diverging lens produces a virtual, upright, reduced image.
-
-**Example: Virtual image formation**
-
-Input:
-
-- Focal Length = −10 cm
-- Object Distance = 30 cm
-- Object Height = 5 cm
-
-Expected results:
-
-- Image Distance = −7.50 cm
-- Magnification = +0.25
-- Image Height = +1.25 cm
-- Orientation = Upright
-- Image Size = Reduced
-- Image Type = Virtual
-
-The virtual image appears on the same side of the lens as the object.
-
-### 9.7 Object Inside the Focal Length
-
-For a converging lens, an object positioned inside the focal length produces a virtual, upright, enlarged image.
-
-**Example**
-
-Input:
-
-- Focal Length = +10 cm
-- Object Distance = 5 cm
-- Object Height = 2 cm
-
-Expected results:
-
-- Image Distance = −10 cm
-- Magnification = +2.00
-- Image Height = +4 cm
-- Orientation = Upright
-- Image Size = Enlarged
-- Image Type = Virtual
-
-### 9.8 Object at the Focal Point
-
-When an object is located exactly at the focal point of a converging lens, the outgoing rays are parallel.
-
-In the ideal thin lens model, the image is at infinity.
-
-Some numerical results or diagram elements may be represented differently for this special case.
-
-## 10. Understanding Magnification
-
-### 10.1 Magnification Equation
-
-Optik calculates signed magnification using:
-
-**m = −dᵢ / dₒ**
+\[
+d_i=\frac{fd_o}{d_o-f}
+\]
 
 Where:
 
-- m = Magnification.
-- dᵢ = Image distance.
-- dₒ = Object distance.
+- \(f\) is focal length.
+- \(d_o\) is object distance.
+- \(d_i\) is image distance.
 
-### 10.2 Image Height
+### 4.3.5 Radius of Curvature
 
-The image height is calculated using:
+The relationship between focal length and radius of curvature is:
 
-**hᵢ = m × hₒ**
+\[
+R=2f
+\]
 
-Where:
+A concave mirror has a positive focal length under the selected sign convention.
 
-- hᵢ = Image height.
-- hₒ = Object height.
+A convex mirror has a negative focal length.
 
-### 10.3 Image Orientation
+### 4.3.6 Concave Mirror Example
 
-| Magnification | Orientation |
+**Inputs:**
+
+| Parameter | Value |
 |---|---|
-| Negative | Inverted |
-| Positive | Upright |
+| Mirror Type | Concave |
+| Focal Length | 10 cm |
+| Object Distance | 30 cm |
+| Object Height | 5 cm |
 
-### 10.4 Image Size
+Select Calculate.
 
-| Magnification Magnitude | Classification |
+**Expected Results:**
+
+| Result | Value |
 |---|---|
-| Greater than 1 | Enlarged |
-| Less than 1 | Reduced |
-| Equal to 1 | Same size |
+| Mirror Type | Concave |
+| Image Distance | +15 cm |
+| Radius of Curvature | +20 cm |
+| Magnification | -0.50 |
+| Image Height | -2.50 cm |
+| Image Type | Real |
+| Orientation | Inverted |
+| Image Size | Reduced |
 
-Magnification describes the image size relative to the object.
+The real image forms in front of the mirror.
 
-## 11. Understanding the Ray Diagrams
+### 4.3.7 Convex Mirror Example
 
-### 11.1 Reflection and Refraction Diagrams
+**Inputs:**
 
-Optik uses a two-dimensional coordinate system to illustrate light-ray behavior.
+| Parameter | Value |
+|---|---|
+| Mirror Type | Convex |
+| Focal Length | 10 cm (magnitude) |
+| Object Distance | 30 cm |
+| Object Height | 5 cm |
 
-The default visualization includes:
+Select Calculate.
 
-- **Blue:** Incident ray.
-- **Orange:** Reflected ray.
-- **Green:** Refracted ray.
-- **Dashed vertical line:** Surface normal.
-- **Horizontal line:** Optical interface.
+**Expected Results:**
 
-Colors may vary with visualization settings.
+| Result | Value |
+|---|---|
+| Mirror Type | Convex |
+| Image Distance | -7.50 cm |
+| Radius of Curvature | -20 cm |
+| Magnification | +0.25 |
+| Image Height | +1.25 cm |
+| Image Type | Virtual |
+| Orientation | Upright |
+| Image Size | Reduced |
 
-### 11.2 Thin Lens Diagrams
+The virtual image appears behind the mirror.
 
-Thin lens diagrams illustrate the relationship between the object, lens, focal points, and image.
+### 4.3.8 Mirror Magnification
 
-Important elements include:
+Mirror magnification uses:
 
-- Optical axis.
-- Lens position.
-- Focal points.
-- Object arrow.
-- Image arrow.
-- Principal optical rays.
+\[
+m=-\frac{d_i}{d_o}
+\]
 
-In the standard lens diagram:
+Image height uses:
 
-- The lens is located at the center.
-- The object is positioned to the left of the lens.
-- Real images form on the opposite side.
-- Virtual images appear on the object side.
+\[
+h_i=mh_o
+\]
 
-Virtual images are identified by extending diverging rays backward to their apparent point of origin.
+A negative magnification indicates an inverted image.
 
-### 11.3 Matplotlib Navigation Toolbar
+A positive magnification indicates an upright image.
 
-The Thin Lens visualization includes Matplotlib navigation controls.
+The absolute value of magnification determines the relative image size.
 
-Depending on the toolbar configuration, available controls may include:
+### 4.3.9 Mirror Ray Diagrams
 
-- Home: Restore the original view.
-- Back: Return to the previous view.
-- Forward: Move to the next view.
-- Pan: Move around the diagram.
-- Zoom: Zoom into a selected region.
-- Save: Save the displayed figure.
+The Mirror Optics page includes a Matplotlib ray diagram.
 
-### 11.4 Diagram Limitations
+Depending on the configuration, the diagram displays:
 
-Ray diagrams illustrate idealized optical geometry.
+- The spherical mirror.
+- The principal axis.
+- The focal point (F).
+- The center of curvature (C).
+- The object arrow.
+- The image arrow.
+- Incident and reflected rays.
+- Dashed virtual ray extensions.
 
-They do not represent optical intensity, diffraction, interference, or full electromagnetic wave propagation.
+### 4.3.10 Image Formation at Infinity
 
-## 12. Input Restrictions
+For a concave mirror, when the object is positioned at the focal point:
 
-### 12.1 Reflection and Refraction
+\[
+d_o=f
+\]
 
-- Incident angles must be between 0° and 90°.
-- Refractive indices must be positive.
-- Numerical inputs must be valid and finite.
+The reflected rays are parallel in the idealized model.
 
-### 12.2 Thin Lens
+The image is formed at infinity.
 
-- Focal length must not be zero.
-- Object distance must be positive.
-- Input distances must use consistent units.
-- The object height must satisfy the calculator's supported input range.
-- Invalid mathematical inputs may produce an error message.
+In this configuration, finite image height and magnification are not defined.
 
-The graphical interface uses numerical controls to restrict inputs to supported ranges.
+The calculator displays special result labels such as Infinity or Undefined rather than an ordinary finite value.
 
-## 13. Application Appearance and Settings
+### 4.3.11 Resetting Mirror Inputs
 
-Optik supports Light and Dark appearance themes.
+To restore the calculator's default inputs:
 
-To change the theme:
+1. Open Mirror Optics.
+2. Select Reset.
+3. Review the restored default values.
+4. Select Calculate to generate a new result.
 
-1. Open the Settings page.
-2. Locate the appearance setting.
-3. Select the preferred theme.
-4. Return to the calculator page.
+### 4.3.12 Persistent Mirror Settings
 
-The application applies the selected theme to supported interface components.
+The Mirror Optics page stores supported input preferences.
 
-The Thin Lens Plot Manager supports matching light and dark plotting themes.
+These include:
 
-Supported application settings and calculation defaults are stored using Qt's `QSettings`.
-
-## 14. Troubleshooting
-
-### 14.1 Application Does Not Start
-
-Confirm that Python and the required dependencies are installed.
-
-Run:
-
-```powershell
-python -m pip install -r requirements.txt
-```
-
-Then retry:
-
-```powershell
-python main.py
-```
-
-### 14.2 Matplotlib Import Error
-
-Install Matplotlib:
-
-```powershell
-python -m pip install matplotlib
-```
-
-### 14.3 PySide6 Import Error
-
-Install PySide6:
-
-```powershell
-python -m pip install PySide6
-```
-
-### 14.4 Diagram Does Not Update
-
-Click the Calculate button after changing the numerical inputs.
-
-Verify that the calculation completed successfully.
-
-### 14.5 Unexpected Refraction Results
-
-Verify that the refractive indices are entered in the correct order.
-
-The first index represents the incident medium, and the second represents the transmitted medium.
-
-### 14.6 Unexpected Lens Results
-
-Check the following:
-
-- Focal length sign.
+- Selected mirror type.
+- Focal length.
 - Object distance.
 - Object height.
-- Consistent measurement units.
-- Whether the image is real or virtual.
 
-Remember that a negative image distance indicates a virtual image under the application's sign convention.
+Stored values may be restored when the calculator is reopened or the application is restarted.
 
-### 14.7 Lens Diagram Does Not Appear
+### 4.3.13 Limitations
 
-1. Confirm that valid numerical inputs have been entered.
-2. Click Calculate.
-3. Check whether a calculation error was displayed.
-4. Restart the application if the visualization remains unresponsive.
+The v0.3.0 Mirror Optics calculator uses idealized spherical mirror equations.
 
-### 14.8 Matplotlib Toolbar Problems
+It does not model:
 
-Ensure that the installed Matplotlib version is compatible with the installed PySide6 version.
-
-If a dependency error occurs, reinstall the project requirements.
-
-## 15. Known Limitations
-
-Optik v0.2.0 uses idealized geometrical optics calculations.
-
-The application does not currently calculate:
-
-- Fresnel reflectance.
-- Optical power transmission.
-- Polarization-dependent effects.
+- Spherical aberration.
+- Full non-paraxial ray tracing.
 - Diffraction.
 - Interference.
-- Absorption and scattering.
-- Lens aberrations.
-- Thick lens behavior.
-- Complex multi-element optical systems.
+- Surface manufacturing imperfections.
+- Real optical coating behavior.
 
-The application is intended for educational and computational reference purposes.
+The diagrams are intended for geometrical optics calculations and educational visualization.
 
-## 16. Future Development
+---
 
-Planned future development includes:
+# 5. Understanding Calculation Results
 
-| Version | Planned Features |
+## 5.1 Real Images
+
+A real image occurs when optical rays physically converge at an image location in the geometrical model.
+
+Under the sign conventions used by the current lens and mirror modules, a positive image distance identifies a real image.
+
+## 5.2 Virtual Images
+
+A virtual image occurs when rays appear to originate from an image location when extended backward.
+
+Under the current conventions, a negative image distance identifies a virtual image.
+
+## 5.3 Image Orientation
+
+| Classification | Meaning |
 |---|---|
-| v0.3.0 | Concave and convex mirror calculations |
-| v0.4.0 | Multiple lenses and optical systems |
-| v0.5.0 | Wave optics |
-| v0.6.0 | Interference and diffraction |
-| v0.7.0 | Polarization |
-| v0.8.0 | Optical materials |
-| v0.9.0 | Numerical and Fourier optics |
-| v1.0.0 | Stable release |
+| Upright | Image has the same vertical orientation as the object |
+| Inverted | Image is vertically reversed relative to the object |
 
-Future features and schedules are subject to change.
+## 5.4 Image Size
 
-## 17. License
+| Classification | Condition |
+|---|---|
+| Enlarged | Absolute magnification greater than 1 |
+| Reduced | Absolute magnification less than 1 |
+| Same Size | Absolute magnification equal to 1 |
 
-Optik is distributed under the MIT License.
+## 5.5 Units
 
-Refer to the `LICENSE` file in the project root for the complete license terms.
+Optik's geometrical optics equations work with consistent distance units.
+
+For example, if focal length and object distance are entered in centimeters, image distance and radius of curvature are also expressed in centimeters.
+
+Magnification is dimensionless.
+
+---
+
+# 6. Troubleshooting
+
+## 6.1 Application Does Not Start
+
+Check that:
+
+- Python is installed.
+- The virtual environment is activated.
+- Required dependencies are installed.
+- The application is launched from the correct project directory.
+
+Try:
+
+```bash
+python -m pip install -r requirements.txt
+python -m app.main_window
+```
+
+## 6.2 Invalid Calculation Inputs
+
+If a calculation cannot be performed:
+
+1. Check the input values.
+2. Verify that the selected optical model is appropriate.
+3. Avoid invalid denominators and unsupported values.
+4. Confirm that distances use consistent units.
+5. Recalculate.
+
+## 6.3 Diagram Does Not Update
+
+If a diagram does not reflect the current inputs:
+
+1. Confirm that the inputs were changed successfully.
+2. Select Calculate again.
+3. Check for a displayed calculation error.
+4. Reopen the calculator if necessary.
+
+If the issue persists, record the input values and application version when reporting the problem.
+
+## 6.4 Theme Does Not Update
+
+If the appearance is inconsistent:
+
+1. Open Settings.
+2. Select the desired theme.
+3. Navigate between calculator pages.
+4. Restart the application if necessary.
+
+## 6.5 Settings Are Not Restored
+
+Optik uses Qt application settings to preserve supported preferences.
+
+If settings are not restored, verify that the application is running under the same user account and that its settings storage is accessible.
+
+---
+
+# 7. Reporting Bugs and Requesting Features
+
+When reporting a bug, include:
+
+- Optik version.
+- Operating system.
+- Python version, if running from source.
+- A description of the issue.
+- Steps to reproduce the issue.
+- Expected behavior.
+- Actual behavior.
+- Relevant error messages or screenshots.
+
+Feature requests should describe the proposed functionality and its intended use.
+
+---
+
+# 8. User Guide Maintenance Policy
+
+This document follows an append-only version history approach.
+
+### 8.1 Permanent Sections
+
+The following sections are maintained as current user guidance:
+
+- Introduction.
+- Installation and Startup.
+- Application Interface.
+- Understanding Calculation Results.
+- Troubleshooting.
+- Reporting Bugs and Requesting Features.
+
+These sections may be updated when application-wide behavior changes.
+
+### 8.2 Version-Specific Sections
+
+Each release receives a new section documenting:
+
+- New calculator modules.
+- New user inputs.
+- New calculations.
+- New visualization features.
+- Worked examples.
+- Special cases.
+- Known limitations.
+
+### 8.3 Historical Preservation
+
+Instructions for previous releases remain documented.
+
+If a future version changes an existing workflow, the new version section should identify the change.
+
+Outdated general instructions should be updated so users of the latest release are not misled.
+
+---
+
+# 9. Future Version Template
+
+Append the following section when introducing a new release:
+
+```markdown
+## 4.X Version X.Y.Z — Release Title
+
+**Status:** In Development
+
+### X.1 Overview
+
+### X.2 New Features
+
+### X.3 Accessing the Module
+
+### X.4 Input Parameters
+
+### X.5 Calculation Instructions
+
+### X.6 Worked Examples
+
+### X.7 Visualization
+
+### X.8 Special Cases
+
+### X.9 Known Limitations
+```
+
+Only include headings relevant to the release.
+
+---
+
+# 10. Document Revision History
+
+| Revision | Software Version | Description |
+|---|---|---|
+| 1.0 | v0.1.0 | Initial reflection and refraction user instructions |
+| 1.1 | v0.2.0 | Added thin lens calculator instructions |
+| 1.2 | v0.3.0 | Added mirror optics instructions and versioned documentation structure |
+
+---
+
+# 11. Additional Documentation
+
+For more information, consult:
+
+- `README.md` — Project overview and installation.
+- `CHANGELOG.md` — Release changes.
+- `docs/SRS.md` — Software Requirements Specification.
+- `docs/SDD.md` — Software Design Document.
+- `docs/DEVELOPMENT.md` — Development and testing procedures.
+
+---
+
+**Optik — Exploring Optics and Photonics Through Scientific Computing.**
+
+**End of User Guide**

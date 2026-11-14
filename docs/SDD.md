@@ -1,10 +1,11 @@
 # Optik — Software Design Document (SDD)
 
-**Version:** 0.2.0  
-**Status:** Release Candidate  
-**Programming Language:** Python  
-**GUI Framework:** PySide6  
-**License:** MIT
+**Project:** Optik — Open-Source Optics & Photonics Desktop Application  
+**Current Development Version:** v0.3.0  
+**Document Status:** Maintained  
+**License:** MIT  
+**Primary Language:** Python  
+**GUI Framework:** PySide6
 
 ---
 
@@ -12,750 +13,872 @@
 
 ### 1.1 Purpose
 
-This document describes the software architecture, major components, module responsibilities, data flow, and implementation design of Optik v0.2.0.
+This Software Design Document (SDD) describes the architecture, components, interfaces, mathematical models, and implementation strategy of Optik.
 
-Optik is an open-source desktop application designed for optics and photonics calculations and scientific visualization.
+Optik is a modular scientific desktop application designed to perform optical calculations and generate graphical representations of optical phenomena.
 
-Version 0.2.0 extends the original reflection and refraction functionality with thin lens calculations, magnification, image classification, and lens ray diagrams.
+This document establishes the application's core architecture and records design additions introduced in each software version.
 
 ### 1.2 Design Objectives
 
-Optik is designed to be:
+Optik is designed to:
 
-- **Modular:** Separate optical calculations, graphical interface, and visualization.
-- **Maintainable:** Organize functionality into independent modules.
-- **Extensible:** Support additional optics and photonics calculations.
-- **Testable:** Allow numerical and GUI components to be tested independently.
-- **Accessible:** Provide an understandable graphical interface for scientific calculations.
-- **Reusable:** Share visualization and interface components across multiple calculation pages.
+- Separate scientific calculations from GUI components.
+- Provide reusable scientific visualization tools.
+- Support incremental feature development.
+- Maintain independently testable modules.
+- Provide a consistent graphical interface.
+- Support future expansion into additional optics and photonics disciplines.
+- Preserve architectural history between releases.
 
-### 1.3 Scope
+### 1.3 Technology Stack
 
-The v0.2.0 architecture supports:
+| Component | Technology |
+|---|---|
+| Programming Language | Python |
+| GUI Framework | PySide6 |
+| Scientific Computing | NumPy, SciPy |
+| Scientific Visualization | Matplotlib |
+| Automated Testing | pytest |
+| GUI Testing | pytest-qt |
+| Version Control | Git |
+| Repository Hosting | GitHub |
+| Windows Packaging | PyInstaller, when applicable |
 
-- Reflection calculations.
-- Refraction and Snell's law.
-- Critical-angle calculations.
-- Total internal reflection detection.
-- Thin lens calculations.
-- Magnification and image height calculations.
-- Image orientation and size classification.
-- Two-dimensional ray visualization.
-- Light and Dark application themes.
-- Automated testing.
+---
 
-Advanced wave optics and multi-element optical simulations remain outside the current scope.
+# 2. Core System Architecture
 
-## 2. System Architecture
+## 2.1 Architectural Overview
 
-Optik uses a modular desktop application architecture.
+Optik follows a modular, layered architecture.
 
-The system consists of four primary layers:
-
-1. Application layer
-2. User interface layer
-3. Optical computation layer
-4. Visualization layer
-
-Supporting utility and configuration modules provide shared functionality.
-
-### 2.1 Architecture Overview
+The application separates presentation, scientific calculations, visualization, and application configuration.
 
 ```text
-                       Optik Application
-                               |
-                         Main Window
-                               |
-                     Sidebar / Navigation
-                               |
-                         QStackedWidget
-                               |
-          +--------------------+--------------------+
-          |                    |                    |
-    Reflection Page      Refraction Page        Lens Page
-          |                    |                    |
-    Reflection Module     Refraction Module    Thin Lens Module
-          |                    |                    |
-          |                Snell's Law         Magnification Module
-          |                    |                    |
-          |             Total Internal              |
-          |             Reflection Module           |
-          |                    |                    |
-          +--------------------+                    |
-                   |                                |
-              Ray Diagram                      Lens Diagram
-                   |                                |
-                   |                           Plot Manager
-                   |                                |
-                   +---------------+----------------+
-                                   |
-                               Matplotlib
-                                   |
-                              PySide6 / Qt
++--------------------------------------------------+
+|                  Optik Desktop                   |
++--------------------------------------------------+
+|              Presentation Layer                  |
+|                                                  |
+| MainWindow | HomePage | Calculator Pages         |
+| SettingsPage | Navigation | Input Controls       |
++--------------------------------------------------+
+|              Scientific Logic Layer              |
+|                                                  |
+| Reflection | Refraction | Thin Lenses | Mirrors   |
+| Magnification | Image Classification             |
++--------------------------------------------------+
+|              Visualization Layer                 |
+|                                                  |
+| Reflection Diagrams | Refraction Diagrams        |
+| Lens Diagrams | Mirror Diagrams | PlotManager    |
++--------------------------------------------------+
+|              Application Services                |
+|                                                  |
+| QSettings | Themes | Configuration | Export      |
++--------------------------------------------------+
 ```
 
-The Home and Settings pages operate alongside the calculator pages.
+Scientific calculation modules should remain independent of GUI widgets.
 
-### 2.2 Design Principles
+GUI components coordinate user input, calculation execution, and visualization.
 
-- Optical calculations must remain independent of PySide6.
-- Visualization modules must not duplicate physics calculations.
-- GUI pages coordinate inputs, calculations, and result displays.
-- Shared plotting functionality should be implemented through reusable components.
-- Existing functionality must remain compatible with new modules.
+## 2.2 Architectural Principles
 
-## 3. Project Structure
+### Separation of Concerns
+
+Each component has a defined responsibility.
+
+- Scientific modules perform calculations.
+- Visualization modules construct optical diagrams.
+- GUI pages collect inputs and display results.
+- The main window manages application navigation.
+- Settings components manage supported preferences.
+
+### Modularity
+
+New optics modules should be introduced without requiring extensive modifications to existing calculation modules.
+
+### Reusability
+
+Shared mathematical and visualization functionality should be implemented in reusable components where practical.
+
+### Testability
+
+Scientific calculations should be testable without launching the graphical interface.
+
+GUI functionality should be tested using pytest-qt.
+
+---
+
+# 3. Project Directory Structure
+
+The following structure represents the primary organization of Optik through v0.3.0.
 
 ```text
 Optik/
-|
-|-- main.py
-|-- pyproject.toml
-|-- requirements.txt
-|-- README.md
-|-- CHANGELOG.md
-|-- CONTRIBUTING.md
-|-- LICENSE
-|
-|-- app/
-|   |-- __init__.py
-|   |-- main_window.py
-|   |-- config.py
-|
-|-- ui/
-|   |-- pages/
-|   |   |-- home_page.py
-|   |   |-- reflection_page.py
-|   |   |-- refraction_page.py
-|   |   |-- lens_page.py
-|   |   |-- settings_page.py
-|   |
-|   |-- widgets/
-|   |   |-- sidebar.py
-|   |   |-- metric_card.py
-|   |   |-- input_panel.py
-|   |
-|   |-- styles/
-|       |-- main.qss
-|       |-- light.qss
-|       |-- dark.qss
-|
-|-- optics/
-|   |-- reflection.py
-|   |-- refraction.py
-|   |-- snells_law.py
-|   |-- total_internal_reflection.py
-|   |-- thin_lens.py
-|   |-- magnification.py
-|
-|-- visualization/
-|   |-- ray_diagram.py
-|   |-- lens_diagram.py
-|   |-- plot_manager.py
-|
-|-- utils/
-|   |-- validators.py
-|   |-- constants.py
-|
-|-- tests/
-|   |-- test_reflection.py
-|   |-- test_refraction.py
-|   |-- test_snells_law.py
-|   |-- test_total_internal_reflection.py
-|   |-- test_main_window.py
-|   |-- test_reflection_page.py
-|   |-- test_refraction_page.py
-|   |-- test_ray_diagram.py
-|   |-- test_thin_lens.py
-|   |-- test_magnification.py
-|   |-- test_lens_diagram.py
-|   |-- test_plot_manager.py
-|
-|-- docs/
-    |-- SRS.md
-    |-- SDD.md
-    |-- USER_GUIDE.md
-    |-- DEVELOPMENT.md
+│
+├── app/
+│   ├── __init__.py
+│   └── main_window.py
+│
+├── optics/
+│   ├── __init__.py
+│   ├── reflection.py
+│   ├── refraction.py
+│   ├── thin_lens.py
+│   ├── magnification.py
+│   ├── mirrors.py
+│   └── mirror_magnification.py
+│
+├── visualization/
+│   ├── __init__.py
+│   ├── reflection_diagram.py
+│   ├── refraction_diagram.py
+│   ├── lens_diagram.py
+│   └── mirror_diagram.py
+│
+├── ui/
+│   ├── __init__.py
+│   ├── pages/
+│   │   ├── __init__.py
+│   │   ├── home_page.py
+│   │   ├── reflection_page.py
+│   │   ├── refraction_page.py
+│   │   ├── lens_page.py
+│   │   ├── mirror_page.py
+│   │   └── settings_page.py
+│   │
+│   └── widgets/
+│       └── [Reusable GUI widgets]
+│
+├── tests/
+│   ├── test_reflection.py
+│   ├── test_refraction.py
+│   ├── test_thin_lens.py
+│   ├── test_magnification.py
+│   ├── test_mirrors.py
+│   ├── test_mirror_magnification.py
+│   ├── test_mirror_diagram.py
+│   ├── test_mirror_page.py
+│   └── [Additional test modules]
+│
+├── docs/
+│   ├── SRS.md
+│   ├── SDD.md
+│   ├── USER_GUIDE.md
+│   ├── DEVELOPMENT.md
+│   └── screenshots/
+│
+├── README.md
+├── CHANGELOG.md
+├── LICENSE
+└── requirements.txt
 ```
 
-Some components may remain under development or require additional integration testing.
+The structure may be extended as additional optical modules are introduced.
 
-## 4. Application Layer
+---
 
-### 4.1 Application Entry Point
+# 4. Core Component Design
 
-**File:** `main.py`
+## 4.1 Main Application Window
 
-Responsibilities:
+**Module:** `app/main_window.py`
 
-- Initialize `QApplication`.
-- Configure application information.
-- Load the application stylesheet.
-- Create and display the main window.
-- Start the Qt event loop.
+**Class:** `MainWindow`
 
-### 4.2 Main Window
+The main window is responsible for:
 
-**File:** `app/main_window.py`
+- Creating the primary application interface.
+- Initializing calculator pages.
+- Managing sidebar navigation.
+- Managing the stacked page container.
+- Applying supported application themes.
+- Maintaining navigation shortcuts.
+- Restoring supported user preferences.
 
-The `MainWindow` class manages the primary application interface.
+### Page Management
 
-Responsibilities:
+Optik uses `QStackedWidget` to manage application pages.
 
-- Initialize the sidebar.
-- Register application pages.
-- Manage page navigation.
-- Connect Home dashboard shortcuts.
-- Display the active page.
-- Apply application themes.
-- Coordinate persistent settings.
+The current v0.3.0 page organization is:
 
-The implementation uses `QMainWindow` and `QStackedWidget`.
+| Index | Page |
+|---|---|
+| 0 | Home |
+| 1 | Reflection |
+| 2 | Refraction |
+| 3 | Thin Lenses |
+| 4 | Mirror Optics |
+| 5 | Settings |
 
-### 4.3 Page Registration
+### Navigation
 
-Version 0.2.0 contains five primary pages.
+The main window exposes:
 
-| Page | Stack Index | Module |
-|---|---:|---|
-| Home | 0 | `home_page.py` |
-| Reflection | 1 | `reflection_page.py` |
-| Refraction | 2 | `refraction_page.py` |
-| Thin Lens | 3 | `lens_page.py` |
-| Settings | 4 | `settings_page.py` |
+```python
+navigate_to(index: int)
+```
 
-Navigation requests are processed by the main window.
+This method updates the active page and sidebar selection.
 
-The sidebar emits navigation signals, while the main window updates the active page.
+The Home dashboard emits a navigation signal that the main window handles.
 
-## 5. User Interface Layer
+## 4.2 Home Dashboard
 
-### 5.1 Sidebar
+**Module:** `ui/pages/home_page.py`
 
-**File:** `ui/widgets/sidebar.py`
+**Classes:** `HomePage`, `FeatureCard`
 
-The sidebar provides navigation between application pages.
+The Home dashboard provides entry points to Optik's calculation modules.
 
-Responsibilities:
+Each feature card contains:
 
-- Display navigation options.
-- Emit page-selection signals.
-- Indicate the active page.
-- Support navigation to the Thin Lens calculator.
+- A module title.
+- A short description.
+- An Open Calculator button.
+- A destination page index.
 
-### 5.2 Home Page
+### Navigation Signal
 
-**File:** `ui/pages/home_page.py`
+```python
+navigate_to = Signal(int)
+```
 
-The Home page provides the application's landing interface.
+The signal communicates the selected destination to the main window.
 
-It contains feature cards for the available optical calculators.
+## 4.3 Settings Management
 
-Version 0.2.0 adds a Thin Lens feature card that opens the corresponding calculator page.
+Optik uses PySide6 `QSettings` to preserve supported application preferences.
 
-### 5.3 Reflection Page
+Examples include:
 
-**File:** `ui/pages/reflection_page.py`
+```text
+appearance/theme
+window/last_page
+mirror/type
+mirror/focal_length
+mirror/object_distance
+mirror/object_height
+```
 
-Responsibilities:
+Settings are restored when the relevant application component initializes.
 
-- Accept an incident angle.
-- Execute the reflection calculation.
-- Display the reflected angle.
-- Update the reflection ray diagram.
-- Handle invalid inputs.
+## 4.4 Theme Management
 
-### 5.4 Refraction Page
+The application supports:
 
-**File:** `ui/pages/refraction_page.py`
+- Light theme.
+- Dark theme.
 
-Responsibilities:
+The main window exposes:
 
-- Accept two refractive indices.
-- Accept an incident angle.
-- Calculate the refracted angle.
-- Calculate the critical angle when applicable.
-- Detect total internal reflection.
-- Update the ray visualization.
+```python
+set_theme(theme: str)
+```
 
-### 5.5 Thin Lens Page
+Pages implementing compatible `set_theme()` methods receive theme updates.
 
-**File:** `ui/pages/lens_page.py`
+Visualization components may require additional styling to maintain readability.
 
-The `LensPage` class provides the graphical interface for thin lens calculations.
+---
 
-**Inputs**
+# 5. Scientific Calculation Architecture
 
-- Focal length.
-- Object distance.
-- Object height.
+## 5.1 Calculation Module Responsibilities
 
-**Outputs**
+Scientific calculation modules should:
 
-- Image distance.
+1. Accept numerical inputs.
+2. Validate inputs according to the mathematical model.
+3. Perform the required calculations.
+4. Return numerical results or structured result objects.
+5. Raise appropriate exceptions for invalid operations.
+
+Calculation modules should not directly create or manipulate PySide6 widgets.
+
+## 5.2 Numerical Conventions
+
+Optik uses documented sign conventions for optical calculations.
+
+Sign conventions must be consistent between:
+
+- Mathematical equations.
+- Returned calculation results.
+- GUI result labels.
+- Ray diagram coordinates.
+- Automated tests.
+
+Different optical models may use different conventions, which must be documented within their respective modules.
+
+## 5.3 Error Handling
+
+Expected invalid input conditions should be handled through appropriate exceptions.
+
+GUI pages should display user-readable error messages rather than allowing expected calculation errors to terminate the application.
+
+---
+
+# 6. Visualization Architecture
+
+## 6.1 Matplotlib Integration
+
+Optik uses Matplotlib for optical diagrams.
+
+Visualization modules are responsible for constructing scientific figures independently of the GUI page layout.
+
+PySide6 pages embed Matplotlib figures using the Qt-compatible canvas.
+
+## 6.2 Reusable Plotting Components
+
+Reusable plotting functionality may include:
+
+- Figure creation.
+- Axis configuration.
+- Plot clearing.
+- Diagram refresh.
+- Theme adaptation.
+- Figure export.
+
+The PlotManager introduced during v0.2.0 provides a foundation for reusable scientific visualization.
+
+Individual calculator pages may also embed Matplotlib figures directly.
+
+## 6.3 Diagram Design Principles
+
+Optical diagrams should:
+
+- Represent the corresponding mathematical model.
+- Identify optical components and reference points.
+- Distinguish relevant ray paths.
+- Show object and image positions where applicable.
+- Maintain readable labels.
+- Handle special mathematical cases appropriately.
+
+---
+
+# 7. Version-Specific Design History
+
+The following sections document architectural and implementation changes introduced by each development version.
+
+---
+
+## 7.1 Version 0.1.0 — Reflection and Refraction
+
+**Status:** Completed
+
+### 7.1.1 Overview
+
+Version 0.1.0 established Optik's initial scientific calculation and visualization architecture.
+
+### 7.1.2 Reflection Module
+
+**Module:** `optics/reflection.py`
+
+The reflection module implements the law of reflection.
+
+The fundamental relationship is:
+
+\[
+\theta_r = \theta_i
+\]
+
+Where:
+
+- \(\theta_r\) is the reflected angle.
+- \(\theta_i\) is the incident angle.
+
+The angles are measured relative to the surface normal.
+
+### 7.1.3 Refraction Module
+
+**Module:** `optics/refraction.py`
+
+The refraction module implements Snell's law:
+
+\[
+n_1\sin(\theta_1)=n_2\sin(\theta_2)
+\]
+
+Where:
+
+- \(n_1\) is the refractive index of the incident medium.
+- \(n_2\) is the refractive index of the second medium.
+- \(\theta_1\) is the incident angle.
+- \(\theta_2\) is the refracted angle.
+
+The module also supports critical-angle calculations and total internal reflection detection.
+
+### 7.1.4 Visualization Components
+
+Version 0.1.0 introduced reflection and refraction ray diagrams.
+
+These diagrams represent incident, reflected, and refracted rays according to the calculated optical behavior.
+
+### 7.1.5 GUI Components
+
+Initial GUI pages included:
+
+- Home.
+- Reflection.
+- Refraction.
+- Settings.
+
+The interface established the foundation for modular navigation and persistent settings.
+
+### 7.1.6 Testing
+
+Testing covered:
+
+- Reflection calculations.
+- Refraction calculations.
+- Critical-angle calculations.
+- Total internal reflection.
+- Ray diagrams.
+- GUI functionality.
+
+---
+
+## 7.2 Version 0.2.0 — Thin Lens Optics
+
+**Status:** Development Completed
+
+### 7.2.1 Overview
+
+Version 0.2.0 extended the scientific architecture to support geometrical image formation using thin lenses.
+
+### 7.2.2 Thin Lens Calculation Module
+
+**Module:** `optics/thin_lens.py`
+
+The module implements the thin lens equation:
+
+\[
+\frac{1}{f}=\frac{1}{d_o}+\frac{1}{d_i}
+\]
+
+Where:
+
+- \(f\) is focal length.
+- \(d_o\) is object distance.
+- \(d_i\) is image distance.
+
+The module supports converging and diverging lenses.
+
+### 7.2.3 Magnification Module
+
+**Module:** `optics/magnification.py`
+
+The magnification relationship is:
+
+\[
+m=-\frac{d_i}{d_o}
+\]
+
+Image height is calculated using:
+
+\[
+h_i=mh_o
+\]
+
+Where:
+
+- \(m\) is magnification.
+- \(h_i\) is image height.
+- \(h_o\) is object height.
+
+The magnification module supports signed numerical values according to its implemented calculation conventions.
+
+### 7.2.4 Lens Visualization
+
+**Module:** `visualization/lens_diagram.py`
+
+The lens diagram module illustrates:
+
+- Converging lens behavior.
+- Diverging lens behavior.
+- Principal rays.
+- Object and image positions.
+- Focal points.
+- Real and virtual image formation.
+
+### 7.2.5 PlotManager
+
+Version 0.2.0 introduced reusable Matplotlib plotting functionality.
+
+The PlotManager supports common scientific visualization operations and reduces duplication between optical modules.
+
+### 7.2.6 Thin Lens GUI
+
+**Module:** `ui/pages/lens_page.py`
+
+The Thin Lens page provides:
+
+- Optical input controls.
+- Calculation execution.
+- Image properties.
+- Embedded ray diagrams.
+- Theme-aware presentation.
+
+### 7.2.7 Testing
+
+Tests were developed for:
+
+- Thin lens equations.
+- Magnification calculations.
+- Image classification.
+- Lens ray diagrams.
+- Thin Lens GUI behavior.
+
+---
+
+## 7.3 Version 0.3.0 — Mirror Optics
+
+**Status:** In Development
+
+### 7.3.1 Overview
+
+Version 0.3.0 introduces spherical mirror calculations and visualization.
+
+The design extends Optik's geometrical optics capabilities while maintaining separation between mathematical calculations, diagrams, and GUI components.
+
+### 7.3.2 Mirror Calculation Module
+
+**Module:** `optics/mirrors.py`
+
+**Primary Result Structure:** `MirrorResult`
+
+The mirror calculation module supports:
+
+- Concave mirrors.
+- Convex mirrors.
+- Mirror image distance.
+- Radius of curvature.
+- Mirror type classification.
+- Real and virtual image classification.
+- Image formation at infinity.
+
+### Spherical Mirror Equation
+
+\[
+\frac{1}{f}=\frac{1}{d_o}+\frac{1}{d_i}
+\]
+
+### Radius of Curvature
+
+\[
+R=2f
+\]
+
+### Sign Convention
+
+| Quantity | Convention |
+|---|---|
+| Positive focal length | Concave mirror |
+| Negative focal length | Convex mirror |
+| Positive image distance | Real image |
+| Negative image distance | Virtual image |
+| Positive object distance | Real object in front of mirror |
+
+The calculation module validates numerical inputs and handles special mathematical conditions.
+
+### 7.3.3 Mirror Magnification Module
+
+**Module:** `optics/mirror_magnification.py`
+
+**Primary Result Structure:** `MirrorMagnificationResult`
+
+The module calculates:
+
 - Magnification.
 - Image height.
 - Image orientation.
-- Relative image size.
-- Lens type.
-- Lens ray diagram.
+- Image size classification.
 
-**Responsibilities**
+### Magnification Equation
 
-- Read numerical inputs.
-- Invoke the optical calculation modules.
-- Update calculation results.
-- Generate lens ray diagrams.
-- Display diagrams using the Plot Manager.
-- Load and save calculation defaults.
-- Apply the current plotting theme.
+\[
+m=-\frac{d_i}{d_o}
+\]
 
-The page uses PySide6 input widgets and `QSettings` for persistent defaults.
+### Image Height Equation
 
-### 5.6 Settings Page
+\[
+h_i=mh_o
+\]
 
-**File:** `ui/pages/settings_page.py`
+The module classifies images as upright or inverted and enlarged, reduced, or the same size.
 
-The Settings page provides application configuration options.
+When an image is formed at infinity, finite magnification is undefined.
 
-The application supports Light and Dark appearance themes.
+### 7.3.4 Mirror Visualization Module
 
-Settings are persisted using Qt's `QSettings` system.
+**Module:** `visualization/mirror_diagram.py`
 
-## 6. Optical Computation Layer
+**Class:** `MirrorDiagram`
 
-The `optics/` package contains mathematical functions independent of the graphical interface.
+The MirrorDiagram component is responsible for generating spherical mirror ray diagrams.
 
-### 6.1 Reflection Module
+#### Principal Components
 
-**File:** `optics/reflection.py`
+- Spherical mirror representation.
+- Principal optical axis.
+- Focal point.
+- Center of curvature.
+- Object arrow.
+- Image arrow.
+- Incident rays.
+- Reflected rays.
+- Virtual ray extensions.
 
-Primary function:
+#### Main Methods
 
-`calculate_reflection(incident_angle)`
+```python
+draw(focal_length, object_distance, object_height)
+clear()
+save(filename, dpi=150)
+```
 
-Implements the law of reflection:
+The diagram uses the mirror calculation module to determine optical geometry.
 
-**θᵣ = θᵢ**
+The plotting component returns a Matplotlib figure that can be embedded in the GUI.
 
-### 6.2 Snell's Law Module
+### 7.3.5 Mirror GUI Module
 
-**File:** `optics/snells_law.py`
+**Module:** `ui/pages/mirror_page.py`
 
-Primary function:
+**Class:** `MirrorPage`
 
-`calculate_snells_law(n1, n2, incident_angle)`
+The MirrorPage component provides the user interface for spherical mirror calculations.
 
-Implements:
+#### Inputs
 
-**θ₂ = arcsin[(n₁ / n₂) sin(θ₁)]**
+- Mirror type.
+- Focal length magnitude.
+- Object distance.
+- Object height.
 
-The calculation must account for conditions where no real refracted angle exists.
+#### Outputs
 
-### 6.3 Refraction Module
+- Mirror type.
+- Image distance.
+- Radius of curvature.
+- Magnification.
+- Image height.
+- Image classification.
+- Image orientation.
+- Image size.
 
-**File:** `optics/refraction.py`
+#### Controls
 
-Primary function:
+- Calculate.
+- Reset.
+- Matplotlib navigation toolbar.
 
-`calculate_refraction(n1, n2, incident_angle)`
+#### Persistent Settings
 
-Provides a higher-level interface to Snell's law calculations.
+The MirrorPage stores supported input values using `QSettings`.
 
-### 6.4 Total Internal Reflection Module
+### 7.3.6 Main Window Integration
 
-**File:** `optics/total_internal_reflection.py`
+**Module:** `app/main_window.py`
 
-Primary functions:
+Version 0.3.0 expands the main application window from five to six pages.
 
-- `calculate_critical_angle(n1, n2)`
-- `is_total_internal_reflection(n1, n2, incident_angle)`
+Mirror Optics is assigned page index `4`, and Settings moves to page index `5`.
 
-The critical angle is defined only when **n₁ > n₂**.
+The main window connects the Home dashboard's navigation signal to its page-navigation method.
 
-### 6.5 Thin Lens Module
+### 7.3.7 Home Dashboard Integration
 
-**File:** `optics/thin_lens.py`
+**Module:** `ui/pages/home_page.py`
 
-The module calculates image formation using the ideal thin lens equation.
+Version 0.3.0 introduces a Mirror Optics feature card.
 
-**Primary function**
+The card emits the destination page index when its Open Calculator button is activated.
 
-`calculate_image_distance(f, do)`
+### 7.3.8 Theme Integration
 
-**Equation**
+The MirrorPage supports light and dark themes.
 
-**1/f = 1/dₒ + 1/dᵢ**
+The main window propagates supported theme changes to calculator pages.
 
-Rearranged:
+Matplotlib figures require separate theme-aware styling for backgrounds, axes, and labels.
 
-**dᵢ = (f × dₒ) / (dₒ − f)**
+### 7.3.9 Testing Architecture
 
-**Sign conventions**
+Version 0.3.0 includes automated tests for:
 
-| Parameter | Interpretation |
+| Module | Test File |
 |---|---|
-| f > 0 | Converging lens |
-| f < 0 | Diverging lens |
-| dₒ > 0 | Real object |
-| dᵢ > 0 | Real image |
-| dᵢ < 0 | Virtual image |
+| Mirror calculations | `tests/test_mirrors.py` |
+| Mirror magnification | `tests/test_mirror_magnification.py` |
+| Mirror diagrams | `tests/test_mirror_diagram.py` |
+| Mirror GUI | `tests/test_mirror_page.py` |
 
-When `dₒ = f` for a converging lens, the image distance approaches infinity.
+The complete automated regression suite has passed.
 
-The module provides a `ThinLensResult` data structure for representing calculated lens properties.
+Manual GUI verification remains part of release preparation.
 
-### 6.6 Magnification Module
+### 7.3.10 Design Limitations
 
-**File:** `optics/magnification.py`
+The mirror module uses the paraxial approximation.
 
-The module calculates image magnification, image height, and image classification.
+The current implementation does not provide:
 
-**Primary functions**
+- Full non-paraxial ray tracing.
+- Spherical aberration analysis.
+- Diffraction calculations.
+- Interference simulations.
+- Wave-optics mirror modeling.
 
-- `calculate_magnification(di, do)`
-- `calculate_image_height(m, ho)`
-- `classify_orientation(m)`
-- `classify_image_size(m)`
-- `calculate_image_properties(di, do, ho)`
+These capabilities are outside the scope of v0.3.0.
 
-**Magnification equation**
+---
 
-**m = −dᵢ / dₒ**
+# 8. Testing and Quality Assurance Architecture
 
-**Image height equation**
+## 8.1 Unit Testing
 
-**hᵢ = m × hₒ**
+Optik uses pytest to verify scientific calculations.
 
-**Orientation**
+Unit tests should cover:
 
-- Negative magnification: inverted.
-- Positive magnification: upright.
+- Expected numerical results.
+- Boundary conditions.
+- Invalid inputs.
+- Special mathematical cases.
+- Image classifications.
 
-**Image size**
+## 8.2 GUI Testing
 
-- |m| > 1: enlarged.
-- |m| < 1: reduced.
-- |m| = 1: unchanged.
+Optik uses pytest-qt to verify PySide6 components.
 
-The module provides a `MagnificationResult` data structure for calculated image properties.
+GUI tests should cover:
 
-## 7. Visualization Layer
-
-### 7.1 Ray Diagram
-
-**File:** `visualization/ray_diagram.py`
-
-The `RayDiagram` class inherits from `QWidget`.
-
-It embeds a Matplotlib figure using `FigureCanvasQTAgg`.
-
-Primary methods:
-
-- `draw_reflection(incident_angle)`
-- `draw_refraction(n1, n2, incident_angle)`
-
-### 7.2 Reflection and Refraction Coordinate System
-
-The diagram uses a two-dimensional Cartesian coordinate system.
-
-- The optical interface is positioned at `y = 0`.
-- The surface normal is positioned at `x = 0`.
-- Incident rays originate above the interface and travel toward the origin.
-- Reflected rays travel away from the origin into the upper medium.
-- Refracted rays enter the lower medium when transmission is geometrically possible.
-
-### 7.3 Total Internal Reflection Visualization
-
-When total internal reflection occurs, the diagram displays incident and reflected rays without a refracted ray.
-
-### 7.4 Lens Diagram
-
-**File:** `visualization/lens_diagram.py`
-
-The `LensDiagram` class generates two-dimensional thin lens ray diagrams.
-
-Responsibilities:
-
-- Draw the optical axis.
-- Represent the lens position.
-- Mark focal points.
-- Draw the object.
-- Draw the image when representable at a finite distance.
-- Illustrate principal optical rays.
-- Support converging and diverging lens configurations.
-
-**Primary methods**
-
-- `draw(f, do, ho)`
-- `clear()`
-- `save(...)`
-
-The diagram uses Matplotlib's `Figure` and `Axes` objects.
-
-For thin lens diagrams:
-
-- The lens is located at `x = 0`.
-- The optical axis is located at `y = 0`.
-- The object is positioned at `x = −dₒ`.
-- Real images appear on the opposite side of the lens.
-- Virtual images appear on the object side.
-
-The diagrams use idealized paraxial ray geometry.
-
-### 7.5 Plot Manager
-
-**File:** `visualization/plot_manager.py`
-
-The `PlotManager` class provides reusable Matplotlib integration for PySide6 widgets.
-
-**Responsibilities**
-
-- Embed Matplotlib figures.
-- Manage the plotting canvas.
-- Manage the navigation toolbar.
-- Apply Light and Dark themes.
-- Refresh and clear plots.
-- Configure axes.
-- Display existing diagram objects.
-- Export figures.
-
-**Primary methods**
-
-- `set_figure(figure)`
-- `get_figure()`
-- `get_axes()`
-- `refresh()`
-- `draw()`
-- `clear()`
-- `clear_figure()`
-- `apply_theme(theme)`
-- `set_title(title)`
-- `set_labels(xlabel, ylabel)`
-- `set_limits(xmin, xmax, ymin, ymax)`
-- `set_grid(enabled)`
-- `plot_line(...)`
-- `plot_scatter(...)`
-- `display_diagram(diagram)`
-- `save_plot(filename, dpi)`
-- `reset()`
-
-**Figure replacement**
-
-When a different Matplotlib figure is assigned, the Plot Manager replaces the associated canvas and navigation toolbar.
-
-This avoids relying on the unsupported `NavigationToolbar2QT.set_canvas()` method.
-
-## 8. Component Interaction and Data Flow
-
-### 8.1 Thin Lens Calculation Workflow
-
-```text
-User enters lens parameters
-            |
-            v
-       LensPage
-            |
-            v
-    Input validation
-            |
-            v
-    Thin Lens Module
-            |
-            v
-  Image distance result
-            |
-            v
-  Magnification Module
-            |
-            v
-  Image classification
-            |
-            +-------------------+
-            |                   |
-            v                   v
-      Result Labels        LensDiagram
-                                |
-                                v
-                           PlotManager
-                                |
-                                v
-                         Matplotlib Canvas
-```
-
-### 8.2 Navigation Workflow
-
-```text
-User selects page
-        |
-        v
-Sidebar or Home feature card
-        |
-        v
-MainWindow.change_page()
-        |
-        v
-QStackedWidget
-        |
-        v
-Selected calculator page
-```
-
-### 8.3 Theme Workflow
-
-```text
-User selects theme
-        |
-        v
-Settings / QSettings
-        |
-        v
-MainWindow
-        |
-        +-------------------+
-        |                   |
-        v                   v
-Application stylesheet   PlotManager
-                            |
-                            v
-                       Figure colors
-```
-
-## 9. Input Validation
-
-Optical calculation modules validate numerical inputs.
-
-### 9.1 Reflection and Refraction
-
-Validation includes:
-
-- Finite numeric values.
-- Positive refractive indices.
-- Incident angles between 0° and 90°.
-- Valid critical-angle conditions.
-
-### 9.2 Thin Lens Calculations
-
-Validation includes:
-
-- Finite focal lengths.
-- Nonzero focal lengths.
-- Positive object distances.
-- Valid object heights.
-- Handling of focal-point singularities.
-- Prevention of division by zero.
-- Appropriate handling of infinite image distances.
-
-Invalid inputs raise appropriate exceptions, including `ValueError`.
-
-The graphical interface handles calculation errors and presents understandable feedback.
-
-## 10. Testing Architecture
-
-Optik uses pytest and pytest-qt.
-
-### 10.1 Unit Tests
-
-Unit tests verify the mathematical correctness of optical calculation modules.
-
-Relevant files include:
-
-- `test_reflection.py`
-- `test_refraction.py`
-- `test_snells_law.py`
-- `test_total_internal_reflection.py`
-- `test_thin_lens.py`
-- `test_magnification.py`
-
-### 10.2 GUI Tests
-
-GUI tests verify widget initialization, user interactions, calculation results, and page navigation.
-
-Relevant files include:
-
-- `test_main_window.py`
-- `test_reflection_page.py`
-- `test_refraction_page.py`
-
-Additional Thin Lens page integration tests are part of v0.2.0 release verification.
-
-### 10.3 Visualization Tests
-
-Visualization tests verify ray geometry, diagram construction, figure management, and plotting behavior.
-
-Relevant files include:
-
-- `test_ray_diagram.py`
-- `test_lens_diagram.py`
-- `test_plot_manager.py`
-
-### 10.4 Manual Verification
-
-Manual testing verifies:
-
-- Application startup.
+- Widget initialization.
+- Input controls.
+- Calculation results.
+- Button actions.
 - Navigation.
-- Window resizing.
-- Theme switching.
-- Calculator interactions.
-- Diagram rendering.
-- Plot toolbar functionality.
+- Theme behavior.
+- Persistent settings.
 
-### 10.5 Test Execution
+## 8.3 Visualization Testing
 
-Run the complete suite:
+Visualization tests should verify:
+
+- Figure creation.
+- Optical component placement.
+- Ray geometry.
+- Diagram labels.
+- Special optical cases.
+- Export functionality.
+
+## 8.4 Regression Testing
+
+The complete test suite should be executed following significant feature changes.
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-## 11. Dependencies
+Regression testing ensures previously supported functionality continues to operate after new modules are introduced.
 
-The primary technologies include:
+## 8.5 Manual Verification
 
-- Python
-- PySide6
-- Matplotlib
-- NumPy
-- SciPy
-- pytest
-- pytest-qt
+Before release, the application should be launched and tested interactively.
 
-The initial geometrical optics calculations primarily use Python's standard `math` module.
+Manual verification should include:
 
-## 12. Design Constraints and Limitations
+- Calculator operation.
+- Page navigation.
+- Theme switching.
+- Diagram rendering.
+- Input handling.
+- Settings persistence.
 
-Optik v0.2.0 uses idealized geometrical optics models.
+---
 
-The thin lens implementation assumes:
+# 9. Design Maintenance Policy
 
-- Thin lenses.
-- Paraxial rays.
-- Idealized image formation.
-- Consistent distance sign conventions.
-- No optical aberrations.
+Optik follows a versioned software design documentation policy.
 
-The application does not currently model diffraction, interference, polarization, or full electromagnetic wave behavior.
+### 9.1 Permanent Sections
 
-## 13. Future Architecture
+The following sections are maintained as the current architectural reference:
 
-Future releases may extend the computation and visualization layers with:
+- Introduction.
+- Core architecture.
+- Project structure.
+- Core component design.
+- Scientific calculation architecture.
+- Visualization architecture.
+- Testing architecture.
 
-- Concave and convex mirrors.
-- Multi-element optical systems.
-- Optical materials and dispersion.
-- Wave optics.
-- Polarization.
-- Interference and diffraction.
-- Fourier optics.
-- Advanced numerical simulations.
+### 9.2 Version-Specific Sections
 
-The modular architecture is intended to support these additions without requiring a complete redesign.
+Each release receives a new section documenting:
 
-## 14. Conclusion
+- New calculation modules.
+- New GUI components.
+- New visualization components.
+- Architectural changes.
+- Mathematical models.
+- Design decisions.
+- Testing strategy.
+- Known limitations.
 
-Optik v0.2.0 expands the application's geometrical optics capabilities while maintaining the modular architecture established in v0.1.0.
+### 9.3 Historical Design Preservation
 
-The addition of thin lens calculations, magnification analysis, reusable plotting components, and expanded GUI navigation provides a foundation for future optical system modeling.
+Previous version sections should remain intact.
 
-The next planned development milestone is v0.3.0, focusing on mirror optics.
+If a future release replaces an existing component, the new version section should document the replacement and identify the affected previous design.
+
+Historical inaccuracies may be corrected with appropriate revision notes.
+
+---
+
+# 10. Future Version Template
+
+Append the following structure when developing a new release.
+
+```markdown
+## 7.X Version X.Y.Z — Release Title
+
+**Status:** In Development
+
+### X.1 Overview
+
+### X.2 Scientific Calculation Design
+
+### X.3 Visualization Design
+
+### X.4 GUI Design
+
+### X.5 Main Application Integration
+
+### X.6 Architectural Changes
+
+### X.7 Testing Architecture
+
+### X.8 Known Limitations
+```
+
+Future versions should be appended without rewriting the historical design sections.
+
+---
+
+# 11. Document Revision History
+
+| Revision | Software Version | Description |
+|---|---|---|
+| 1.0 | v0.1.0 | Initial reflection and refraction architecture |
+| 1.1 | v0.2.0 | Thin lens calculations and visualization architecture |
+| 1.2 | v0.3.0 | Mirror optics architecture and versioned documentation structure |
+
+---
+
+**End of Software Design Document**

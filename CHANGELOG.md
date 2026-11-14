@@ -1,158 +1,235 @@
 # Changelog
 
-All notable changes to Optik will be documented in this file.
+All notable changes to **Optik — Open-Source Optics & Photonics Desktop Application** are documented in this file.
 
-This project follows [Semantic Versioning](https://semver.org/).
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project follows [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## Changelog Maintenance Policy
 
-### Planned
+Each release has its own section. Previous release entries are preserved, except for factual corrections.
 
-- Expand geometrical optics with mirror calculations in v0.3.0.
-- Add concave and convex mirror support.
-- Implement mirror image formation and magnification.
-- Develop mirror ray diagrams.
-- Expand scientific visualization and automated testing.
-- Continue improving application settings and usability.
+Changes are organized under the following categories when applicable:
+
+- **Added:** New features, modules, and functionality.
+- **Changed:** Updates to existing features or behavior.
+- **Fixed:** Corrections to bugs and errors.
+- **Deprecated:** Features scheduled for removal.
+- **Removed:** Features removed from the application.
+- **Security:** Security-related changes.
+
+During development, changes are recorded under the upcoming version. When the release is published, its status is updated and the release date is added.
 
 ---
 
-## [0.2.0] — Release Candidate
+## [0.3.0] — Mirror Optics
+
+**Status:** In Development  
+**Release Date:** TBD
 
 ### Added
 
-**Thin Lens Optics**
-- Implemented the thin lens equation for image distance calculations.
-- Added support for converging and diverging lenses.
-- Added positive and negative focal length conventions.
-- Implemented image magnification calculations.
-- Added image height calculations.
-- Implemented image orientation classification.
-- Added enlarged, reduced, and unchanged image size classifications.
-- Added real and virtual image classification.
-- Added handling for image formation at infinity.
-- Expanded numerical input validation.
-
-**Scientific Visualization**
-- Implemented two-dimensional thin lens ray diagrams.
-- Added visualization of converging and diverging lenses.
-- Added principal optical axes and focal points.
-- Added object and image representations.
-- Integrated lens ray diagrams with Matplotlib.
-- Added dynamic diagram updates following calculations.
-- Created a reusable `PlotManager` component.
-- Added light and dark plotting themes.
-- Added Matplotlib navigation toolbar support.
-- Added figure management and plot configuration utilities.
-- Added figure export functionality supporting PNG, JPG, JPEG, SVG, and PDF.
-
-**Graphical Interface**
-- Created the dedicated Thin Lens calculator page.
-- Integrated the Thin Lens page into the main application window.
-- Extended sidebar navigation to include Thin Lens.
-- Added a Thin Lens feature card to the Home dashboard.
-- Added focal length, object distance, and object height input controls.
-- Added calculation result displays for image distance, magnification, image height, orientation, and image size.
-- Integrated the lens ray diagram into the calculator interface.
-- Added persistent calculation defaults using `QSettings`.
-- Integrated plotting with Light and Dark application themes.
-
-**Testing**
-- Added thin lens physics unit tests.
-- Added magnification calculation tests.
-- Added lens diagram tests.
-- Added Plot Manager tests.
-- Updated Main Window tests for the new five-page navigation structure.
-- Added navigation coverage for the Thin Lens page and Home dashboard shortcut.
-- Expanded coverage of numerical calculations and boundary conditions.
-
-### Fixed
-
-- Corrected Main Window test expectations after adding the Thin Lens page.
-- Fixed Matplotlib toolbar integration when replacing figures in the Plot Manager.
-- Corrected Thin Lens Home dashboard card initialization.
-- Connected the Thin Lens Home dashboard shortcut to application navigation.
+- Spherical mirror calculations supporting concave and convex mirrors.
+- Mirror image distance calculations using the spherical mirror equation.
+- Radius of curvature calculations from focal length.
+- Mirror magnification calculations.
+- Mirror image height calculations.
+- Classification of real and virtual mirror images.
+- Classification of upright and inverted images.
+- Image size classification: enlarged, reduced, and same size.
+- Mirror ray diagrams using Matplotlib.
+- Dedicated Mirror Optics calculator page.
+- Mirror Optics navigation in the application sidebar.
+- Mirror Optics feature card on the Home dashboard.
+- Keyboard shortcut `Ctrl+5` for Mirror Optics.
+- Automated tests for mirror calculations, magnification, ray diagrams, and GUI functionality.
 
 ### Changed
 
-- Expanded Optik from reflection and refraction calculations to include thin lens optics.
-- Updated the application navigation structure.
-- Extended the visualization architecture with a reusable plotting component.
-- Improved separation between optical calculations, visualization, and graphical interface components.
+- Updated the main application window to support six pages.
+- Expanded Home dashboard navigation to include Mirror Optics.
+- Updated page navigation shortcuts.
+- Extended theme handling to the Mirror Optics page.
+- Added persistent input settings for the mirror calculator.
+- Updated the project version to v0.3.0.
+- Reorganized documentation into version-specific sections.
 
-### Documentation
+### Fixed
 
-- Updated the project README with v0.2.0 functionality.
-- Prepared updates to the Software Requirements Specification.
-- Prepared updates to the Software Design Document.
-- Prepared updates to the User Guide.
-- Prepared updates to the development documentation.
+- Updated magnification tests to reflect supported signed-distance and signed-height calculations.
+- Corrected test expectations for negative object distances and zero or negative object heights.
 
-### Release Verification
+### Testing
 
-- Main Window tests passed.
-- Complete test suite verification remains pending.
-- Final documentation review remains pending.
+- Mirror optics calculation tests passed.
+- Mirror magnification tests passed.
+- Mirror diagram tests passed.
+- Mirror calculator GUI tests passed.
+- Existing Optik unit tests passed during regression testing.
 
-**Release status:** v0.2.0 release candidate; not yet tagged or published.
+### Release Preparation
+
+- [x] Implement mirror optics calculations.
+- [x] Implement mirror magnification.
+- [x] Implement mirror ray diagrams.
+- [x] Implement Mirror Optics GUI.
+- [x] Integrate Mirror Optics into the main window.
+- [x] Update Home dashboard navigation.
+- [x] Run automated regression tests.
+- [ ] Complete manual GUI verification.
+- [ ] Finalize documentation.
+- [ ] Validate distributable executable, if applicable.
+- [ ] Create GitHub release and version tag.
 
 ---
 
-## [0.1.0] — Development Release
+## [0.2.0] — Thin Lens Optics
+
+**Status:** Development Completed  
+**Release Date:** Not recorded
 
 ### Added
 
-**Application Framework**
-- Created the Optik desktop application using Python and PySide6.
-- Implemented the main application window.
-- Added sidebar navigation.
-- Created Home, Reflection, Refraction, and Settings pages.
-- Implemented Light and Dark application themes.
-- Added persistent application settings.
+- Thin lens calculations using the thin lens equation.
+- Support for converging lenses.
+- Support for diverging lenses.
+- Image distance calculations.
+- Optical magnification calculations.
+- Image height calculations.
+- Image orientation classification.
+- Image size classification.
+- Thin lens ray diagrams.
+- Dedicated Thin Lens calculator page.
+- Thin Lens navigation in the sidebar.
+- Thin Lens feature card on the Home dashboard.
+- Reusable Matplotlib PlotManager for scientific visualization.
+- Plot export and refresh functionality.
+- Unit tests for thin lens calculations.
+- GUI tests for Thin Lens functionality.
+- Visualization tests for lens ray diagrams.
 
-**Optical Calculations**
-- Implemented the law of reflection.
-- Implemented Snell's law.
-- Added refraction calculations.
-- Added critical-angle calculations.
-- Implemented total internal reflection detection.
-- Added numerical input validation.
+### Changed
 
-**Graphical Interface**
-- Created an interactive reflection calculator.
-- Created an interactive refraction calculator.
-- Added numerical input controls.
-- Added calculation result displays.
-- Integrated total internal reflection status indicators.
-- Added scrollable calculator pages.
-- Implemented theme selection in Settings.
+- Expanded the main window to support Thin Lens Optics.
+- Updated the Home dashboard to display additional scientific modules.
+- Improved the organization of calculation and visualization modules.
+- Extended plotting functionality for reuse across optics modules.
+- Updated application documentation for thin lens functionality.
 
-**Scientific Visualization**
-- Implemented two-dimensional optical ray diagrams.
-- Added incident and reflected ray visualization.
-- Added refracted ray visualization.
-- Added total internal reflection visualization.
-- Integrated Matplotlib with PySide6.
-- Added dynamic diagram updates.
+### Fixed
 
-**Testing**
-- Added physics unit tests using pytest.
-- Added GUI tests using pytest-qt.
-- Added ray visualization tests.
-- Added input validation and boundary-condition tests.
+- Corrected issues identified during thin lens calculation and ray diagram testing.
+- Improved compatibility between plotting components and GUI pages.
 
-**Documentation**
-- Created the Software Requirements Specification.
-- Created the Software Design Document.
-- Created the User Guide.
-- Added project licensing information.
+### Testing
 
-### Notes
+- Thin lens calculation tests completed.
+- Thin lens ray diagram tests completed.
+- GUI tests completed.
+- Existing reflection and refraction functionality checked during development.
 
-Version 0.1.0 establishes the foundation for future Optik development.
+---
 
-This development release focuses on fundamental geometrical optics, introductory scientific visualization, and application architecture.
+## [0.1.0] — Initial Release
 
-Advanced optical simulations remain outside the scope of v0.1.0.
+**Status:** Completed  
+**Release Date:** Not recorded
 
-**Release status:** Development version tagged as `v0.1.0`.
+### Added
+
+- Initial Optik desktop application.
+- PySide6 graphical user interface.
+- Home dashboard.
+- Sidebar navigation.
+- Reflection calculator.
+- Refraction calculator.
+- Law of reflection calculations.
+- Snell's law calculations.
+- Critical angle calculations.
+- Total internal reflection detection.
+- Reflection ray diagrams.
+- Refraction ray diagrams.
+- Application Settings page.
+- Light and dark theme support.
+- Persistent application preferences.
+- Initial project architecture.
+- Unit testing using pytest.
+- GUI testing using pytest-qt.
+- Project documentation.
+- MIT License.
+
+### Changed
+
+- Established the modular architecture for separating optics calculations, visualizations, and GUI components.
+
+### Testing
+
+- Initial calculation tests completed.
+- Reflection and refraction GUI tests completed.
+- Ray diagram tests completed.
+- Initial application functionality verified.
+
+---
+
+## Future Release Template
+
+Copy this section to the top of the release history when beginning a new version.
+
+```markdown
+## [X.Y.Z] — Release Title
+
+**Status:** In Development
+**Release Date:** TBD
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Deprecated
+
+### Removed
+
+### Security
+
+### Testing
+
+### Release Preparation
+
+- [ ] Implement planned features.
+- [ ] Complete unit tests.
+- [ ] Complete regression testing.
+- [ ] Complete manual GUI verification.
+- [ ] Update documentation.
+- [ ] Prepare release.
+```
+
+Only include categories that apply to the release.
+
+---
+
+## Versioning Policy
+
+Optik follows Semantic Versioning:
+
+**MAJOR.MINOR.PATCH**
+
+- **MAJOR:** Incompatible API or significant architectural changes.
+- **MINOR:** New functionality added while maintaining compatibility where practical.
+- **PATCH:** Bug fixes and minor improvements.
+
+During the `0.x.x` development period, the project may introduce changes that are not backward-compatible.
+
+Release versions are tagged in Git when published.
+
+## Release History Summary
+
+| Version | Release Focus | Status |
+|---|---|---|
+| v0.3.0 | Mirror Optics | In Development |
+| v0.2.0 | Thin Lens Optics | Development Completed |
+| v0.1.0 | Reflection and Refraction | Completed |
+
+---
+
+**Optik — Exploring Optics and Photonics Through Scientific Computing.**

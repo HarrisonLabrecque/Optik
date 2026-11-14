@@ -1,10 +1,8 @@
 # Optik — Software Requirements Specification (SRS)
 
-**Version:** 0.2.0  
-**Status:** Release Candidate  
-**Application Type:** Desktop Optics and Photonics Reference Software  
-**Primary Language:** Python  
-**GUI Framework:** PySide6  
+**Project:** Optik — Open-Source Optics & Photonics Desktop Application  
+**Current Development Version:** 0.3.0  
+**Document Status:** Maintained  
 **License:** MIT
 
 ---
@@ -13,451 +11,447 @@
 
 ### 1.1 Purpose
 
-This document defines the software requirements for Optik, an open-source desktop application designed to provide educational and computational tools for optics and photonics.
+This Software Requirements Specification (SRS) defines the functional and non-functional requirements for Optik, an open-source scientific desktop application developed using Python and PySide6.
 
-Optik enables users to perform optical calculations and visualize light-ray behavior through an interactive graphical interface.
+Optik provides computational tools and graphical visualizations for studying optics and photonics.
 
-Version 0.2.0 extends the initial geometrical optics functionality with thin lens calculations, magnification, image classification, and enhanced scientific visualization.
+This document establishes the core requirements of the application and maintains version-specific requirements for each software release.
 
 ### 1.2 Scope
 
-Optik v0.2.0 focuses on geometrical optics, including:
+Optik is designed to support:
 
-- Law of reflection.
-- Snell's law of refraction.
-- Critical-angle calculations.
-- Total internal reflection.
-- Thin lens equation calculations.
-- Converging and diverging lenses.
-- Image magnification and image height.
-- Real and virtual image formation.
-- Image orientation and size classification.
-- Two-dimensional optical ray visualization.
-- Reusable Matplotlib plotting components.
+- Geometrical optics calculations.
+- Optical image formation analysis.
+- Scientific visualization and ray diagrams.
+- Interactive desktop-based optical calculators.
+- Educational and engineering applications.
+- Future expansion into additional optics and photonics disciplines.
 
-Future versions may introduce additional optics and photonics calculations, advanced visualization, and simulation capabilities.
+The application is intended for students, educators, researchers, engineers, and individuals interested in optical science.
 
-### 1.3 Intended Users
+### 1.3 Technology Overview
 
-Optik is intended for students, educators, researchers, engineers, and individuals studying optics and photonics.
+| Component | Technology |
+|---|---|
+| Programming Language | Python |
+| GUI Framework | PySide6 |
+| Scientific Computing | NumPy, SciPy |
+| Visualization | Matplotlib |
+| Unit Testing | pytest |
+| GUI Testing | pytest-qt |
+| Version Control | Git |
+| Source Hosting | GitHub |
 
-### 1.4 Development Technologies
+### 1.4 Requirements Organization
 
-The application uses Python, PySide6, NumPy, SciPy, Matplotlib, pytest, and pytest-qt.
+Requirements are divided into two categories:
 
-Not every dependency is required by every calculation. Current geometrical optics models primarily use Python's standard mathematical functions.
+**Core Requirements:** Requirements that apply to the application across multiple releases.
 
-## 2. Overall Description
+**Version-Specific Requirements:** New functionality introduced in individual software versions.
 
-### 2.1 Product Perspective
+Each requirement has a unique identifier to support traceability, implementation, and testing.
 
-Optik is a standalone desktop application with a modular architecture.
+---
 
-The graphical interface communicates with independent optical calculation modules and visualization components.
+## 2. Core Functional Requirements
 
-The architecture separates application control, interface presentation, optical computation, and scientific visualization.
+These requirements apply across Optik's supported calculation modules.
 
-### 2.2 Product Functions
+### 2.1 Application Interface
 
-The application shall provide:
+| ID | Requirement |
+|---|---|
+| CORE-FR-001 | The application shall provide a graphical desktop interface. |
+| CORE-FR-002 | The application shall provide navigation between supported calculation modules. |
+| CORE-FR-003 | The application shall display a Home dashboard. |
+| CORE-FR-004 | The application shall provide a Settings page. |
+| CORE-FR-005 | The application shall display the current software version. |
+| CORE-FR-006 | The application shall support light and dark themes. |
+| CORE-FR-007 | The application shall preserve supported user preferences between sessions. |
 
-1. A graphical main window.
-2. Sidebar-based navigation.
-3. A reflection calculator.
-4. A refraction calculator.
-5. Critical-angle and total internal reflection calculations.
-6. A thin lens calculator.
-7. Image magnification and image height calculations.
-8. Real and virtual image classification.
-9. Two-dimensional optical ray diagrams.
-10. Reusable Matplotlib plotting functionality.
-11. Light and Dark application themes.
-12. Persistent application settings.
-13. Input validation and error handling.
+### 2.2 Mathematical Calculations
 
-### 2.3 Operating Environment
+| ID | Requirement |
+|---|---|
+| CORE-FR-008 | The application shall perform calculations using established optical equations. |
+| CORE-FR-009 | The application shall separate mathematical calculations from graphical interface components. |
+| CORE-FR-010 | The application shall display calculated results in a readable format. |
+| CORE-FR-011 | The application shall validate user inputs according to the applicable mathematical model. |
+| CORE-FR-012 | The application shall handle invalid mathematical operations without unexpectedly terminating. |
 
-The application is developed using Python and PySide6.
+### 2.3 Scientific Visualization
 
-It is intended to run on supported desktop operating systems with compatible Python and Qt installations.
+| ID | Requirement |
+|---|---|
+| CORE-FR-013 | The application shall provide ray diagrams for supported optical models. |
+| CORE-FR-014 | Ray diagrams shall represent the corresponding calculation results. |
+| CORE-FR-015 | Diagrams shall identify relevant optical components and reference points. |
+| CORE-FR-016 | The application shall support reusable visualization components where appropriate. |
 
-Windows is the primary development environment. Cross-platform compatibility requires verification on each target operating system.
+### 2.4 Application Testing
 
-### 2.4 Assumptions
+| ID | Requirement |
+|---|---|
+| CORE-FR-017 | Mathematical calculation modules shall have automated unit tests. |
+| CORE-FR-018 | Major graphical interface components shall have automated tests. |
+| CORE-FR-019 | New functionality shall be tested before release. |
+| CORE-FR-020 | Existing functionality shall be regression-tested after significant changes. |
 
-The application assumes:
+---
 
-- Users provide numerical values in the units indicated by the interface.
-- Optical calculations use consistent mathematical sign conventions.
-- Thin lenses are idealized.
-- Lens ray diagrams use the paraxial approximation.
-- Scientific diagrams illustrate idealized optical behavior.
+## 3. Non-Functional Requirements
 
-## 3. Functional Requirements
+### 3.1 Reliability
 
-### FR-001: Main Window
+| ID | Requirement |
+|---|---|
+| CORE-NFR-001 | The application shall handle expected calculation errors without crashing. |
+| CORE-NFR-002 | Calculation results shall follow the documented equations and sign conventions. |
+| CORE-NFR-003 | Existing supported features shall remain functional following new feature integration. |
 
-The system shall provide a graphical main window containing application navigation and a content area.
+### 3.2 Usability
 
-### FR-002: Navigation
+| ID | Requirement |
+|---|---|
+| CORE-NFR-004 | The application shall provide clearly labeled input controls. |
+| CORE-NFR-005 | Calculation results shall be understandable to users familiar with introductory optics. |
+| CORE-NFR-006 | The interface shall provide consistent navigation between modules. |
+| CORE-NFR-007 | Supported themes shall maintain readable text and graphical elements. |
 
-The system shall allow users to navigate between the Home, Reflection, Refraction, Thin Lens, and Settings pages.
+### 3.3 Maintainability
 
-The Home page shall provide a shortcut to the Thin Lens calculator.
+| ID | Requirement |
+|---|---|
+| CORE-NFR-008 | Mathematical calculations shall be organized into independent modules. |
+| CORE-NFR-009 | GUI components shall be organized into reusable pages and widgets where appropriate. |
+| CORE-NFR-010 | Visualization logic shall remain separate from mathematical calculation logic. |
+| CORE-NFR-011 | The project shall use version control to track changes. |
+| CORE-NFR-012 | Project documentation shall be maintained for each release. |
 
-### FR-003: Reflection Calculation
+### 3.4 Portability
 
-The system shall calculate the reflected angle using the law of reflection:
+| ID | Requirement |
+|---|---|
+| CORE-NFR-013 | The application shall use Python and supported cross-platform libraries. |
+| CORE-NFR-014 | Platform-specific distribution packages shall be tested on their target operating systems before publication. |
 
-**θᵣ = θᵢ**
+---
 
-The incident angle shall be measured relative to the surface normal.
+# 4. Version-Specific Requirements
 
-### FR-004: Refraction Calculation
+The following sections define the functionality introduced during each development version.
 
-The system shall calculate the refracted angle using Snell's law:
+Historical requirements are preserved to maintain traceability.
 
-**n₁ sin(θ₁) = n₂ sin(θ₂)**
+---
 
-The system shall accept two refractive indices and an incident angle.
+## 4.1 Version 0.1.0 — Reflection and Refraction
 
-### FR-005: Critical Angle
+**Status:** Completed
 
-When n₁ > n₂, the system shall calculate the critical angle:
+### 4.1.1 Reflection Requirements
 
-**θc = arcsin(n₂ / n₁)**
+| ID | Requirement |
+|---|---|
+| V010-FR-001 | The application shall calculate reflected angles using the law of reflection. |
+| V010-FR-002 | The application shall accept an incident angle as input. |
+| V010-FR-003 | The application shall display the calculated reflection angle. |
+| V010-FR-004 | The application shall generate a reflection ray diagram. |
+| V010-FR-005 | The reflection diagram shall display incident and reflected rays. |
 
-### FR-006: Total Internal Reflection
+### 4.1.2 Refraction Requirements
 
-The system shall identify total internal reflection when light travels from a higher refractive index to a lower refractive index and the incident angle exceeds the critical angle.
+| ID | Requirement |
+|---|---|
+| V010-FR-006 | The application shall calculate refracted angles using Snell's law. |
+| V010-FR-007 | The application shall accept refractive indices for two optical media. |
+| V010-FR-008 | The application shall accept an incident angle. |
+| V010-FR-009 | The application shall calculate critical angles where applicable. |
+| V010-FR-010 | The application shall identify total internal reflection conditions. |
+| V010-FR-011 | The application shall generate a refraction ray diagram. |
 
-### FR-007: Ray Visualization
+### 4.1.3 Interface Requirements
 
-The system shall display a two-dimensional ray diagram illustrating applicable incident, reflected, and refracted rays.
+| ID | Requirement |
+|---|---|
+| V010-FR-012 | The application shall provide Reflection and Refraction pages. |
+| V010-FR-013 | The application shall provide navigation through a sidebar. |
+| V010-FR-014 | The application shall provide a Home page. |
+| V010-FR-015 | The application shall provide a Settings page. |
+| V010-FR-016 | The application shall support persistent appearance preferences. |
 
-The diagram shall include an optical interface and surface normal.
+### 4.1.4 Verification
 
-### FR-008: Interactive Calculation
+Verification shall include:
 
-The system shall allow users to change numerical inputs and update calculation results and diagrams.
+- Reflection calculation tests.
+- Snell's law calculation tests.
+- Critical-angle tests.
+- Total internal reflection tests.
+- Ray diagram tests.
+- GUI tests.
 
-### FR-009: Input Validation
+---
 
-The system shall reject invalid optical parameters.
+## 4.2 Version 0.2.0 — Thin Lens Optics
 
-Incident angles shall be within the range of 0° to 90°, inclusive.
+**Status:** Development Completed
 
-Refractive indices shall be positive and finite.
+### 4.2.1 Thin Lens Calculations
 
-### FR-010: Error Handling
+| ID | Requirement |
+|---|---|
+| V020-FR-001 | The application shall calculate image distance using the thin lens equation. |
+| V020-FR-002 | The application shall support converging lenses. |
+| V020-FR-003 | The application shall support diverging lenses. |
+| V020-FR-004 | The application shall accept focal length and object distance as inputs. |
+| V020-FR-005 | The application shall classify real and virtual images. |
+| V020-FR-006 | The application shall handle image formation at infinity. |
 
-The system shall display appropriate error messages when calculations cannot be completed.
+### 4.2.2 Magnification Requirements
 
-### FR-011: Thin Lens Calculation
+| ID | Requirement |
+|---|---|
+| V020-FR-007 | The application shall calculate optical magnification. |
+| V020-FR-008 | The application shall calculate image height. |
+| V020-FR-009 | The application shall classify upright and inverted images. |
+| V020-FR-010 | The application shall classify enlarged, reduced, and same-size images. |
+
+### 4.2.3 Visualization Requirements
+
+| ID | Requirement |
+|---|---|
+| V020-FR-011 | The application shall generate thin lens ray diagrams. |
+| V020-FR-012 | The diagrams shall distinguish converging and diverging lenses. |
+| V020-FR-013 | The diagrams shall identify focal points and relevant image positions. |
+| V020-FR-014 | The visualization system shall support reusable Matplotlib plotting components. |
 
-The system shall calculate image distance using the ideal thin lens equation:
+### 4.2.4 Interface Requirements
 
-**1/f = 1/dₒ + 1/dᵢ**
+| ID | Requirement |
+|---|---|
+| V020-FR-015 | The application shall provide a dedicated Thin Lens page. |
+| V020-FR-016 | The sidebar shall provide navigation to the Thin Lens page. |
+| V020-FR-017 | The Home dashboard shall provide access to Thin Lens calculations. |
 
-The system shall accept:
+### 4.2.5 Verification
 
-- Focal length.
-- Object distance.
-- Object height.
+Verification shall include:
 
-The system shall calculate image distance using:
+- Thin lens equation tests.
+- Magnification tests.
+- Image classification tests.
+- Ray diagram tests.
+- Thin Lens GUI tests.
+- Regression testing of v0.1.0 functionality.
 
-**dᵢ = (f × dₒ) / (dₒ − f)**
+---
 
-### FR-012: Converging and Diverging Lenses
+## 4.3 Version 0.3.0 — Mirror Optics
 
-The system shall support converging and diverging thin lenses.
+**Status:** In Development
 
-The following sign conventions shall apply:
+### 4.3.1 Spherical Mirror Calculations
 
-- Positive focal length: converging lens.
-- Negative focal length: diverging lens.
-- Positive object distance: real object.
-- Positive image distance: real image.
-- Negative image distance: virtual image.
+| ID | Requirement |
+|---|---|
+| V030-FR-001 | The application shall support concave spherical mirrors. |
+| V030-FR-002 | The application shall support convex spherical mirrors. |
+| V030-FR-003 | The application shall calculate image distance using the spherical mirror equation. |
+| V030-FR-004 | The application shall calculate radius of curvature from focal length. |
+| V030-FR-005 | The application shall classify mirrors based on focal length sign. |
+| V030-FR-006 | The application shall classify real and virtual mirror images. |
+| V030-FR-007 | The application shall handle images formed at infinity. |
 
-### FR-013: Magnification Calculation
+### 4.3.2 Mirror Magnification Requirements
 
-The system shall calculate signed image magnification using:
+| ID | Requirement |
+|---|---|
+| V030-FR-008 | The application shall calculate spherical mirror magnification. |
+| V030-FR-009 | The application shall calculate mirror image height. |
+| V030-FR-010 | The application shall classify image orientation. |
+| V030-FR-011 | The application shall classify image size. |
 
-**m = −dᵢ / dₒ**
+### 4.3.3 Mirror Visualization Requirements
 
-The system shall calculate image height using:
+| ID | Requirement |
+|---|---|
+| V030-FR-012 | The application shall generate concave mirror ray diagrams. |
+| V030-FR-013 | The application shall generate convex mirror ray diagrams. |
+| V030-FR-014 | Ray diagrams shall identify the mirror, focal point, and center of curvature. |
+| V030-FR-015 | Ray diagrams shall represent real and virtual image formation. |
+| V030-FR-016 | Virtual ray extensions shall be visually distinguishable from physical rays. |
+| V030-FR-017 | The visualization shall update when calculation inputs change and the calculation is executed. |
 
-**hᵢ = m × hₒ**
+### 4.3.4 Mirror Calculator Interface
 
-### FR-014: Image Orientation
+| ID | Requirement |
+|---|---|
+| V030-FR-018 | The application shall provide a dedicated Mirror Optics page. |
+| V030-FR-019 | Users shall be able to select concave or convex mirrors. |
+| V030-FR-020 | Users shall be able to enter focal length magnitude, object distance, and object height. |
+| V030-FR-021 | The interface shall display image distance, radius of curvature, magnification, and image height. |
+| V030-FR-022 | The interface shall display image type, orientation, and size classification. |
+| V030-FR-023 | The interface shall provide Calculate and Reset controls. |
+| V030-FR-024 | The interface shall preserve supported mirror input preferences. |
+| V030-FR-025 | The interface shall support light and dark themes. |
 
-The system shall determine image orientation from the sign of magnification.
+### 4.3.5 Main Application Integration
 
-- Negative magnification indicates an inverted image.
-- Positive magnification indicates an upright image.
+| ID | Requirement |
+|---|---|
+| V030-FR-026 | The main window shall support six application pages. |
+| V030-FR-027 | The sidebar shall provide access to Mirror Optics. |
+| V030-FR-028 | The Home dashboard shall provide a Mirror Optics feature card. |
+| V030-FR-029 | The application shall support keyboard shortcuts for navigation between its six pages. |
 
-### FR-015: Image Size Classification
+### 4.3.6 Verification Requirements
 
-The system shall classify image size using the magnitude of magnification.
+| ID | Requirement |
+|---|---|
+| V030-TEST-001 | Concave mirror calculations shall be tested. |
+| V030-TEST-002 | Convex mirror calculations shall be tested. |
+| V030-TEST-003 | Mirror magnification calculations shall be tested. |
+| V030-TEST-004 | Mirror ray diagrams shall be tested. |
+| V030-TEST-005 | Mirror calculator GUI behavior shall be tested. |
+| V030-TEST-006 | Existing Optik calculation modules shall undergo regression testing. |
+| V030-TEST-007 | Manual GUI verification shall be completed before release. |
 
-- |m| > 1: enlarged.
-- |m| < 1: reduced.
-- |m| = 1: unchanged.
+### 4.3.7 Current Verification Status
 
-### FR-016: Real and Virtual Images
+Automated unit testing and regression testing have been completed successfully.
 
-The system shall distinguish real and virtual images using the calculated image distance.
+Manual GUI verification and final release preparation remain pending.
 
-For a real object under the adopted sign convention:
+### 4.3.8 Model Limitations
 
-- Positive image distance indicates a real image.
-- Negative image distance indicates a virtual image.
+The v0.3.0 mirror module uses idealized spherical mirror equations under the paraxial approximation.
 
-### FR-017: Focal-Point Conditions
+The current requirements do not include:
 
-The system shall handle the mathematical condition where an object is located at the focal point of a converging lens.
+- Full non-paraxial ray tracing.
+- Spherical aberration analysis.
+- Diffraction or interference calculations for mirrors.
+- Wave-optics simulations.
 
-Under this condition, the idealized image distance approaches infinity.
+These capabilities may be considered for future versions.
 
-The system shall not produce an unhandled division-by-zero error.
+---
 
-### FR-018: Thin Lens Ray Visualization
+# 5. Requirements Traceability
 
-The system shall provide a two-dimensional diagram of thin lens image formation.
+Requirements shall be traceable to their corresponding software modules and tests.
 
-The diagram shall include, where applicable:
+| Requirement Area | Primary Module | Test Area |
+|---|---|---|
+| Reflection | `optics/reflection.py` | Reflection tests |
+| Refraction | `optics/refraction.py` | Refraction tests |
+| Thin Lens Optics | `optics/thin_lens.py` | Thin lens tests |
+| Magnification | `optics/magnification.py` | Magnification tests |
+| Mirror Optics | `optics/mirrors.py` | Mirror calculation tests |
+| Mirror Magnification | `optics/mirror_magnification.py` | Mirror magnification tests |
+| Mirror Visualization | `visualization/mirror_diagram.py` | Mirror diagram tests |
+| Mirror GUI | `ui/pages/mirror_page.py` | Mirror page tests |
+| Main Navigation | `app/main_window.py` | Main window tests |
 
-- Optical axis.
-- Lens position.
-- Focal points.
-- Object representation.
-- Image representation.
-- Principal optical rays.
+Module paths should be updated if the project architecture changes.
 
-The system shall support both converging and diverging lens configurations.
+---
 
-### FR-019: Dynamic Lens Diagram Updates
+# 6. Requirements Maintenance Policy
 
-The system shall update the lens diagram when a new calculation is performed.
+Optik uses version-based requirements documentation.
 
-The diagram shall correspond to the current focal length, object distance, and object height.
+### 6.1 Adding New Requirements
 
-### FR-020: Plot Manager
+Each future software release shall receive a new section containing:
 
-The system shall provide a reusable Matplotlib plotting component.
+- Version identifier.
+- Release title.
+- Development status.
+- Functional requirements.
+- Visualization requirements, when applicable.
+- Interface requirements.
+- Testing and verification requirements.
+- Known limitations.
 
-The Plot Manager shall support:
+### 6.2 Requirement Identification
 
-- Embedded Matplotlib figures.
-- Figure and axes management.
-- Plot refreshing.
-- Plot clearing.
-- Light and Dark plotting themes.
-- Optional navigation toolbar.
-- Integration with existing diagram objects.
+Requirements shall use the following naming convention:
 
-### FR-021: Figure Export
+`VXYZ-FR-NNN`
 
-The Plot Manager shall support exporting figures in the following formats:
+Where:
 
-- PNG.
-- JPG/JPEG.
-- SVG.
-- PDF.
+- `XYZ` identifies the software version.
+- `FR` identifies a functional requirement.
+- `NNN` identifies the requirement number.
 
-This requirement applies to the plotting component API. A dedicated export button is not required in the Thin Lens page for v0.2.0.
+Testing requirements use the `TEST` designation.
 
-### FR-022: Application Themes
+### 6.3 Modifying Existing Requirements
 
-The system shall support Light and Dark appearance themes.
+Historical requirements should not be silently removed or rewritten.
 
-The Thin Lens visualization shall use a plotting theme compatible with the selected application appearance.
+If a requirement changes, the new version shall identify:
 
-### FR-023: Persistent Settings
+1. The original requirement ID.
+2. The reason for the change.
+3. The new or replacement requirement.
+4. Any compatibility implications.
 
-The system shall preserve supported application settings between sessions using Qt's `QSettings`.
+### 6.4 Verification
 
-The Thin Lens page shall support saving and loading calculation defaults.
+Requirements should be verified through appropriate combinations of:
 
-### FR-024: Thin Lens Input Validation
+- Automated unit testing.
+- GUI testing.
+- Integration testing.
+- Regression testing.
+- Manual application verification.
 
-The system shall validate thin lens calculation inputs.
+---
 
-Validation shall include:
+# 7. Future Release Template
 
-- Finite numerical values.
-- Nonzero focal lengths.
-- Positive object distances.
-- Valid object heights.
-- Handling of mathematical singularities.
+Append the following structure for each new release.
 
-Invalid inputs shall not cause an unhandled application error.
+```markdown
+## 4.X Version X.Y.Z — Release Title
 
-### FR-025: Calculation Results
+**Status:** In Development
 
-The Thin Lens page shall display:
+### X.1 Functional Requirements
 
-- Image distance.
-- Magnification.
-- Image height.
-- Image orientation.
-- Image size classification.
-- Lens type.
+| ID | Requirement |
+|---|---|
+| VXYZ-FR-001 | The application shall... |
 
-## 4. Nonfunctional Requirements
+### X.2 Visualization Requirements
 
-### NFR-001: Usability
+### X.3 Interface Requirements
 
-The graphical interface should provide clearly labeled inputs, buttons, and results.
+### X.4 Testing and Verification Requirements
 
-The Thin Lens calculator should present numerical results and visualization together.
+### X.5 Known Limitations
 
-### NFR-002: Modularity
+### X.6 Changes to Previous Requirements
+```
 
-The application shall separate graphical interface components, physics calculations, and visualization logic.
+New sections shall be added without removing the historical requirements of previous versions.
 
-### NFR-003: Maintainability
+---
 
-The source code should support incremental feature development and automated testing.
+# 8. Document Revision History
 
-### NFR-004: Reliability
+| Document Revision | Software Version | Description |
+|---|---|---|
+| 1.0 | v0.1.0 | Initial reflection and refraction requirements |
+| 1.1 | v0.2.0 | Added thin lens optics requirements |
+| 1.2 | v0.3.0 | Added mirror optics requirements and versioned documentation structure |
 
-Valid numerical inputs shall produce results consistent with the implemented geometrical optics equations.
+---
 
-### NFR-005: Responsiveness
-
-Routine optical calculations should complete without noticeable delays under normal operating conditions.
-
-### NFR-006: Documentation
-
-The project shall include user instructions, software requirements, architecture documentation, development documentation, and version history.
-
-### NFR-007: Open Source
-
-The project shall be distributed under the MIT License.
-
-### NFR-008: Testability
-
-Optical calculation modules shall be independently testable without requiring the graphical interface.
-
-GUI and visualization components should support automated testing.
-
-### NFR-009: Extensibility
-
-The architecture should support additional optics modules without requiring substantial changes to existing calculation modules.
-
-### NFR-010: Consistency
-
-Application pages should follow consistent navigation, layout, and appearance conventions.
-
-### NFR-011: Scientific Accuracy
-
-The application shall use documented mathematical equations and sign conventions.
-
-Idealized models and simulation limitations shall be identified in the documentation.
-
-## 5. Constraints and Limitations
-
-Optik v0.2.0 uses idealized geometrical optics models.
-
-The thin lens calculations assume ideal thin lenses and paraxial rays.
-
-The current version does not model:
-
-- Polarization-dependent reflectance.
-- Fresnel coefficients.
-- Diffraction.
-- Interference.
-- Wave propagation.
-- Absorption and scattering.
-- Optical aberrations.
-- Thick lens effects.
-- Complex multi-element optical systems.
-- Three-dimensional optical systems.
-
-Ray diagrams are conceptual illustrations rather than full electromagnetic or physical-optics simulations.
-
-## 6. Verification
-
-Requirements shall be verified through automated unit tests, GUI tests, visualization tests, and manual application testing.
-
-### 6.1 Physics Verification
-
-Physics tests shall verify:
-
-- Reflection calculations.
-- Refraction calculations.
-- Critical-angle calculations.
-- Total internal reflection.
-- Thin lens equation calculations.
-- Magnification and image height.
-- Image classification.
-- Boundary conditions and invalid inputs.
-
-### 6.2 GUI Verification
-
-GUI tests shall verify:
-
-- Main window initialization.
-- Navigation between pages.
-- Thin Lens page accessibility.
-- Home dashboard navigation.
-- Calculation result updates.
-- Input handling.
-- Theme integration.
-
-### 6.3 Visualization Verification
-
-Visualization tests shall verify:
-
-- Reflection and refraction diagrams.
-- Lens diagram construction.
-- Optical ray geometry.
-- Figure and canvas management.
-- Plotting theme behavior.
-- Figure export functionality.
-
-### 6.4 Manual Verification
-
-Manual verification shall include:
-
-- Application startup.
-- Page navigation.
-- Window resizing.
-- Theme switching.
-- Lens calculations.
-- Diagram rendering.
-- Matplotlib toolbar behavior.
-
-### 6.5 Release Readiness
-
-Release readiness requires:
-
-1. Successful execution of the complete applicable automated test suite.
-2. Completion of manual GUI verification.
-3. Review of numerical accuracy and exceptional conditions.
-4. Completion of documentation updates.
-5. Review of the release version and Git repository state.
-
-## 7. Future Development
-
-Planned development areas include:
-
-- v0.3.0: Concave and convex mirror calculations.
-- v0.4.0: Multi-element optical systems.
-- v0.5.0: Wave optics.
-- v0.6.0: Interference and diffraction.
-- v0.7.0: Polarization.
-- v0.8.0: Optical materials.
-- v0.9.0: Numerical and Fourier optics.
-- v1.0.0: Stable application release.
-
-Future requirements will be defined as each version enters development.
-
-## 8. Conclusion
-
-Optik v0.2.0 expands the software requirements established in v0.1.0 by introducing thin lens optics, magnification, image classification, reusable scientific plotting, and additional GUI functionality.
-
-The modular requirements support continued development toward more advanced optics and photonics applications.
+**End of Software Requirements Specification**

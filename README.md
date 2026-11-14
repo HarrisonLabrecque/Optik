@@ -1,228 +1,319 @@
 # Optik
 
-**Open-Source Optics and Photonics Desktop Application**
+**Open-Source Optics & Photonics Desktop Application**
 
-**Current Version:** v0.2.0 — Thin Lens Optics  
-**Programming Language:** Python  
-**GUI Framework:** PySide6  
-**License:** MIT
+Optik is an open-source scientific desktop application developed using Python and PySide6. It provides interactive tools for studying, calculating, and visualizing optical phenomena.
 
-Optik is an open-source desktop application for optical calculations and scientific visualization. It provides interactive tools for exploring reflection, refraction, total internal reflection, thin lens optics, and image formation.
+The project is designed for students, educators, researchers, engineers, and anyone interested in optics and photonics.
 
-## Application Preview
+Optik combines mathematical calculations with interactive graphical interfaces and ray diagrams to make geometrical optics easier to explore.
 
-### Home Dashboard
+## Project Information
 
-The Home dashboard provides access to Optik's optical calculators through a modern graphical interface.
-
-![Optik v0.2.0 Home Dashboard](docs/screenshots/home_page_v0.2.png)
-
-### Thin Lens Calculator
-
-The Thin Lens calculator supports converging and diverging lenses, image distance, magnification, image orientation, and interactive ray diagrams.
-
-![Optik v0.2.0 Thin Lens Calculator](docs/screenshots/thin_lens_v0.2.png)
+| Property | Description |
+|---|---|
+| Project Name | Optik |
+| Current Development Version | v0.3.0 |
+| Application Type | Scientific Desktop Application |
+| Programming Language | Python |
+| GUI Framework | PySide6 |
+| Visualization | Matplotlib |
+| Testing | pytest, pytest-qt |
+| License | MIT |
+| Development Model | Open Source |
 
 ## Features
 
-### Reflection and Refraction
+Optik currently includes the following optical calculation modules:
 
-- Law of reflection calculations.
-- Snell's law of refraction.
-- Critical-angle calculations.
-- Total internal reflection detection.
-- Two-dimensional ray diagrams.
-
-### Thin Lens Optics — v0.2.0
-
-- Converging and diverging lens calculations.
-- Thin lens equation and image distance.
-- Image magnification and height.
-- Real and virtual image classification.
-- Upright and inverted image classification.
-- Enlarged, reduced, and unchanged image classification.
-- Two-dimensional lens ray diagrams.
-
-### Scientific Visualization
-
-- Matplotlib integration with PySide6.
-- Reusable Plot Manager.
-- Light and Dark plotting themes.
-- Interactive plot navigation.
-- Figure export support for PNG, JPG, SVG, and PDF.
-
-### Application Interface
-
-- Sidebar navigation.
-- Home dashboard.
-- Dedicated calculator pages.
-- Light and Dark themes.
-- Persistent application settings.
-- Numerical input validation.
-
-## Thin Lens Equations
-
-The ideal thin lens equation is:
-
-\[
-\frac{1}{f}=\frac{1}{d_o}+\frac{1}{d_i}
-\]
-
-Where `f` is focal length, `d_o` is object distance, and `d_i` is image distance.
-
-Magnification:
-
-\[
-m=-\frac{d_i}{d_o}
-\]
-
-Image height:
-
-\[
-h_i=m h_o
-\]
-
-The application uses positive focal lengths for converging lenses and negative focal lengths for diverging lenses.
-
-## Technologies
-
-- Python
-- PySide6
-- Matplotlib
-- NumPy
-- SciPy
-- pytest
-- pytest-qt
-- Git
+- **Reflection:** Calculate reflected angles using the law of reflection and visualize incident and reflected rays.
+- **Refraction:** Apply Snell's law, calculate refracted angles and critical angles, and investigate total internal reflection.
+- **Thin Lens Optics:** Calculate image distance, magnification, image height, and image characteristics for converging and diverging lenses.
+- **Mirror Optics:** Calculate image formation, magnification, radius of curvature, and image characteristics for concave and convex spherical mirrors.
+- **Scientific Visualization:** Generate ray diagrams to illustrate optical calculations.
+- **Application Settings:** Configure supported appearance preferences, including light and dark themes.
 
 ## Installation
 
-Clone the repository:
+### Requirements
+
+- Python 3.11 or newer, subject to compatibility with the installed dependencies
+- PySide6
+- NumPy
+- SciPy
+- Matplotlib
+- pytest and pytest-qt for development and testing
+
+### Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/YOUR_USERNAME/Optik.git
 cd Optik
 ```
 
-Replace `<repository-url>` with the actual GitHub repository URL.
+Replace `YOUR_USERNAME` with the repository owner's GitHub username.
 
-Create a virtual environment:
+### Create a Virtual Environment
 
-```bash
-python -m venv .venv
-```
-
-Activate it on Windows PowerShell:
+Windows:
 
 ```powershell
-.venv\Scripts\Activate.ps1
+python -m venv .venv
+.venv\Scripts\activate
 ```
 
-Or on Linux/macOS:
+Linux/macOS:
 
 ```bash
+python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Install dependencies:
+### Install Dependencies
+
+If the repository includes a `requirements.txt` file:
 
 ```bash
 python -m pip install -r requirements.txt
 ```
 
-Launch Optik:
+### Run Optik
+
+From the project root directory:
 
 ```bash
-python main.py
+python -m app.main_window
 ```
 
-## Project Structure
+## Application Navigation
 
-```text
-Optik/
-├── main.py
-├── app/
-│   ├── main_window.py
-│   └── config.py
-├── ui/
-│   ├── pages/
-│   │   ├── home_page.py
-│   │   ├── reflection_page.py
-│   │   ├── refraction_page.py
-│   │   ├── lens_page.py
-│   │   └── settings_page.py
-│   ├── widgets/
-│   └── styles/
-├── optics/
-│   ├── reflection.py
-│   ├── refraction.py
-│   ├── snells_law.py
-│   ├── total_internal_reflection.py
-│   ├── thin_lens.py
-│   └── magnification.py
-├── visualization/
-│   ├── ray_diagram.py
-│   ├── lens_diagram.py
-│   └── plot_manager.py
-├── tests/
-├── docs/
-│   ├── screenshots/
-│   │   ├── home_page_v0.2.png
-│   │   └── thin_lens_v0.2.png
-│   ├── SRS.md
-│   ├── SDD.md
-│   ├── USER_GUIDE.md
-│   └── DEVELOPMENT.md
-├── README.md
-├── CHANGELOG.md
-├── CONTRIBUTING.md
-├── LICENSE
-├── pyproject.toml
-└── requirements.txt
-```
+Optik provides a sidebar with access to its primary scientific modules.
+
+| Page | Description | Shortcut |
+|---|---|---|
+| Home | Application dashboard | Ctrl+1 |
+| Reflection | Law of reflection calculator | Ctrl+2 |
+| Refraction | Snell's law and critical-angle calculator | Ctrl+3 |
+| Thin Lenses | Lens calculations and ray diagrams | Ctrl+4 |
+| Mirror Optics | Concave and convex mirror calculations | Ctrl+5 |
+| Settings | Application preferences | Ctrl+6 |
 
 ## Testing
 
-Run the complete automated test suite:
+Optik uses pytest for mathematical unit tests and pytest-qt for graphical interface testing.
+
+Run the complete test suite:
 
 ```bash
 python -m pytest tests/ -v
 ```
 
-Tests cover optical calculations, numerical validation, visualization, and graphical interface behavior.
+Run a specific module:
 
-## Documentation
+```bash
+python -m pytest tests/test_mirrors.py -v
+```
 
-Additional project documentation is available in the `docs/` directory:
+Run the test discovery check:
 
-- [Software Requirements Specification](docs/SRS.md)
-- [Software Design Document](docs/SDD.md)
-- [User Guide](docs/USER_GUIDE.md)
-- [Development Guide](docs/DEVELOPMENT.md)
-- [Changelog](CHANGELOG.md)
-- [Contributing Guidelines](CONTRIBUTING.md)
+```bash
+python -m pytest --collect-only -q
+```
 
-## Development Roadmap
+Regression testing is performed by rerunning the existing test suite after implementing new features. Manual GUI verification is also recommended before each release.
 
-| Version | Features | Status |
-|---|---|---|
-| v0.1.0 | Reflection, refraction, and initial ray diagrams | Released |
-| v0.2.0 | Thin lens optics, magnification, and lens diagrams | Release preparation |
-| v0.3.0 | Concave and convex mirrors | Planned |
-| v0.4.0 | Multiple lenses and optical systems | Planned |
-| v0.5.0 | Wave optics | Planned |
-| v0.6.0 | Interference and diffraction | Planned |
-| v0.7.0 | Polarization | Planned |
-| v0.8.0 | Optical materials and dispersion | Planned |
-| v0.9.0 | Numerical and Fourier optics | Planned |
-| v1.0.0 | Stable application release | Planned |
+---
 
-## Known Limitations
+# Development and Release History
 
-Optik currently uses idealized geometrical optics models. Thin lens calculations assume ideal lenses and paraxial rays.
+This section is maintained chronologically. Each new release adds a new version section while preserving the history of previous releases.
 
-Advanced diffraction, interference, polarization, aberration analysis, and complex optical systems are planned for future development.
+## Version 0.1.0 — Initial Optics Release
+
+**Status:** Completed
+
+### Overview
+
+Version 0.1.0 established the foundation of the Optik desktop application.
+
+### Features Introduced
+
+- Reflection calculations using the law of reflection.
+- Refraction calculations using Snell's law.
+- Critical-angle calculations.
+- Total internal reflection detection.
+- Reflection and refraction ray diagrams.
+- Home dashboard and sidebar navigation.
+- Application settings and theme support.
+- Initial automated unit and GUI tests.
+
+### Technical Foundation
+
+- Python calculation modules.
+- PySide6 graphical interface.
+- Matplotlib-based ray visualization.
+- Modular application architecture.
+- pytest and pytest-qt testing.
+
+---
+
+## Version 0.2.0 — Thin Lens Optics
+
+**Status:** Development completed
+
+### Overview
+
+Version 0.2.0 expanded Optik to include geometrical optics calculations for thin lenses.
+
+### Features Introduced
+
+- Thin lens equation calculations.
+- Converging lens support.
+- Diverging lens support.
+- Image distance calculations.
+- Optical magnification.
+- Image height calculations.
+- Image orientation classification.
+- Image size classification.
+- Thin lens ray diagrams.
+- Dedicated Thin Lens calculator page.
+
+### Visualization Improvements
+
+A reusable Matplotlib-based plotting system was developed to support scientific visualization across optical modules.
+
+The plotting functionality supports capabilities such as diagram rendering, refresh, and export where implemented by the relevant module.
+
+### Interface Improvements
+
+- Thin Lens navigation added to the application.
+- Home dashboard expanded with Thin Lens functionality.
+- Additional calculation results displayed in the GUI.
+- Continued light and dark theme support.
+
+### Testing
+
+Unit tests and GUI tests were developed for thin lens calculations and visualization.
+
+---
+
+## Version 0.3.0 — Mirror Optics
+
+**Status:** In Development
+
+### Overview
+
+Version 0.3.0 expands Optik with spherical mirror calculations and visualization.
+
+The new module supports both concave and convex mirrors and uses the spherical mirror equation to determine image formation.
+
+### Features Introduced
+
+- Concave spherical mirror calculations.
+- Convex spherical mirror calculations.
+- Mirror focal length and radius of curvature relationships.
+- Mirror image distance calculations.
+- Mirror magnification calculations.
+- Mirror image height calculations.
+- Real and virtual image classification.
+- Upright and inverted image classification.
+- Enlarged, reduced, and same-size image classification.
+- Mirror ray diagrams.
+- Dedicated Mirror Optics calculator page.
+
+### Application Improvements
+
+- Mirror Optics added to the sidebar.
+- Mirror Optics added to the Home dashboard.
+- Navigation shortcuts expanded to six pages.
+- Main window updated for the new calculator.
+- Mirror calculator settings persistence.
+- Light and dark theme integration.
+
+### Testing and Validation
+
+The automated unit test suite has passed, including the mirror optics tests and existing calculation tests.
+
+The following checks remain part of release preparation:
+
+- Complete manual GUI verification.
+- Documentation review.
+- Windows executable packaging and validation, if distributed.
+- Final release commit and GitHub tag.
+
+### Known Limitations
+
+- The mirror module uses the paraxial approximation for ideal spherical mirrors.
+- The diagrams represent idealized geometrical optics rather than full physical ray tracing.
+- Wave-optics effects and optical aberration analysis are outside the current mirror module's scope.
+
+---
+
+## Future Releases
+
+Future Optik versions may introduce additional optics and photonics calculations, improved visualization, and more advanced scientific simulation capabilities.
+
+Specific features and release dates will be documented when their scope is established.
+
+### Documentation Update Policy
+
+Starting with v0.3.0, Optik follows a versioned documentation approach:
+
+1. Preserve previous release history.
+2. Add a new version section for each subsequent release.
+3. Document new features, improvements, and limitations under that version.
+4. Update general installation and usage instructions when necessary.
+5. Correct or clearly supersede outdated information without silently rewriting historical release records.
+
+For example, when v0.4.0 is developed, append:
+
+```markdown
+## Version 0.4.0 — Release Title
+
+**Status:** In Development
+
+### Overview
+
+### Features Introduced
+
+### Application Improvements
+
+### Testing and Validation
+
+### Known Limitations
+```
+
+---
+
+## Additional Documentation
+
+Detailed project documentation is available in the `docs/` directory:
+
+- **SRS.md:** Software Requirements Specification.
+- **SDD.md:** Software Design Document.
+- **USER_GUIDE.md:** Instructions for using Optik.
+- **DEVELOPMENT.md:** Development workflow, implementation notes, and testing practices.
+
+Release changes are recorded in `CHANGELOG.md`.
+
+## Contributing
+
+Optik is an open-source project. Contributions, bug reports, feature suggestions, documentation improvements, and test enhancements are welcome.
+
+Before submitting a pull request:
+
+1. Review the project structure and development documentation.
+2. Create a branch for your changes.
+3. Add or update tests where appropriate.
+4. Run the complete test suite.
+5. Describe the changes clearly in your pull request.
 
 ## License
 
-Optik is distributed under the MIT License. See [LICENSE](LICENSE) for details.
+Optik is distributed under the MIT License.
+
+See the `LICENSE` file for the full license text.
+
+---
+
+**Optik — Exploring Optics and Photonics Through Scientific Computing.**
