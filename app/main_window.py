@@ -43,6 +43,7 @@ from ui.pages.lens_page import LensPage
 from ui.pages.mirror_page import MirrorPage
 from ui.pages.prisms_page import PrismPage
 from ui.pages.settings_page import SettingsPage
+from ui.pages.materials_page import MaterialsPage
 
 
 # ============================================================
@@ -61,7 +62,8 @@ class MainWindow(QMainWindow):
     LENS = 3
     MIRROR = 4
     PRISM = 5
-    SETTINGS = 6
+    OPTICAL_MATERIALS = 6
+    SETTINGS = 7
 
     PAGE_NAMES = (
         "Home",
@@ -70,6 +72,7 @@ class MainWindow(QMainWindow):
         "Thin Lenses",
         "Mirror Optics",
         "Prism Optics & Dispersion",
+        "Optical Material Comparisons",
         "Settings",
     )
 
@@ -98,7 +101,7 @@ class MainWindow(QMainWindow):
         """Configure the main application window."""
 
         self.setWindowTitle(
-            "Optik v0.4.0 - Optics & Photonics"
+            "Optik v0.5.0 - Optics & Photonics"
         )
 
         self.setMinimumSize(900, 650)
@@ -158,7 +161,7 @@ class MainWindow(QMainWindow):
         # Version label
 
         self.version_label = QLabel(
-            "Version 0.4.0"
+            "Version 0.5.0"
         )
         self.version_label.setObjectName(
             "versionLabel"
@@ -178,6 +181,7 @@ class MainWindow(QMainWindow):
             (self.LENS, "Thin Lenses"),
             (self.MIRROR, "Mirror Optics"),
             (self.PRISM, "Prism Optics"),
+            (self.OPTICAL_MATERIALS, "Optical Materials")
         ]
 
         for index, name in navigation:
@@ -253,6 +257,8 @@ class MainWindow(QMainWindow):
             dark_mode=self.current_theme == "dark"
         )
 
+        self.material_page = MaterialsPage()
+
         self.settings_page = SettingsPage()
 
         self.pages = (
@@ -262,6 +268,7 @@ class MainWindow(QMainWindow):
             self.lens_page,
             self.mirror_page,
             self.prism_page,
+            self.material_page,
             self.settings_page,
         )
 
@@ -456,7 +463,8 @@ class MainWindow(QMainWindow):
             ("Ctrl+4", self.LENS),
             ("Ctrl+5", self.MIRROR),
             ("Ctrl+6", self.PRISM),
-            ("Ctrl+7", self.SETTINGS),
+            ("Ctrl+7", self.OPTICAL_MATERIALS),
+            ("Ctrl+8", self.SETTINGS),
         ]
 
         for key_sequence, page_index in shortcuts:

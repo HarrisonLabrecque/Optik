@@ -1,12 +1,16 @@
+
 """
 Optik — Sidebar Navigation
-Version: 0.1.0
+Version: 0.5.0
 
 Features:
     - Home navigation
     - Reflection navigation
     - Refraction navigation
     - Thin Lens navigation
+    - Mirror Optics navigation
+    - Prism Optics & Dispersion navigation
+    - Optical Materials & Dispersion navigation
     - Settings navigation
     - Active page highlighting
     - Qt signal-based navigation
@@ -19,6 +23,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QPushButton,
     QFrame,
+    QScrollArea,
 )
 
 
@@ -65,7 +70,7 @@ class Sidebar(QWidget):
         layout.addWidget(self.logo_label)
         layout.addWidget(self.subtitle_label)
 
-        layout.addSpacing(25)
+        layout.addSpacing(20)
 
         # ====================================================
         # NAVIGATION HEADER
@@ -76,6 +81,31 @@ class Sidebar(QWidget):
 
         layout.addWidget(navigation_label)
         layout.addSpacing(8)
+
+        # ====================================================
+        # SCROLLABLE NAVIGATION AREA
+        # ====================================================
+
+        self.navigation_scroll = QScrollArea()
+        self.navigation_scroll.setObjectName(
+            "sidebarNavigationScroll"
+        )
+        self.navigation_scroll.setWidgetResizable(True)
+        self.navigation_scroll.setFrameShape(
+            QFrame.Shape.NoFrame
+        )
+        self.navigation_scroll.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+
+        navigation_widget = QWidget()
+        navigation_widget.setObjectName(
+            "sidebarNavigationContainer"
+        )
+
+        navigation_layout = QVBoxLayout(navigation_widget)
+        navigation_layout.setContentsMargins(0, 0, 0, 0)
+        navigation_layout.setSpacing(8)
 
         # ====================================================
         # NAVIGATION BUTTONS
@@ -101,13 +131,41 @@ class Sidebar(QWidget):
             "lens",
         )
 
-        layout.addWidget(self.home_button)
-        layout.addWidget(self.reflection_button)
-        layout.addWidget(self.refraction_button)
-        layout.addWidget(self.thin_lens_button)
-        
+        self.mirror_button = self._create_button(
+            "Mirror Optics",
+            "mirror",
+        )
 
-        layout.addStretch()
+        self.prism_button = self._create_button(
+            "Prism Optics & Dispersion",
+            "prism",
+        )
+
+        self.materials_button = self._create_button(
+            "Optical Materials",
+            "materials",
+        )
+
+        navigation_buttons = (
+            self.home_button,
+            self.reflection_button,
+            self.refraction_button,
+            self.thin_lens_button,
+            self.mirror_button,
+            self.prism_button,
+            self.materials_button,
+        )
+
+        for button in navigation_buttons:
+            navigation_layout.addWidget(button)
+
+        navigation_layout.addStretch()
+
+        self.navigation_scroll.setWidget(
+            navigation_widget
+        )
+
+        layout.addWidget(self.navigation_scroll, 1)
 
         # ====================================================
         # SETTINGS
@@ -132,7 +190,7 @@ class Sidebar(QWidget):
         # VERSION
         # ====================================================
 
-        self.version_label = QLabel("Version 0.2.0")
+        self.version_label = QLabel("Version 0.5.0")
         self.version_label.setObjectName("sidebarVersion")
         self.version_label.setAlignment(
             Qt.AlignmentFlag.AlignCenter

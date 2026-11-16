@@ -12,6 +12,7 @@ Features:
     - Thin lens calculator navigation
     - Mirror optics calculator navigation
     - Prism optics and dispersion navigation
+    - Optical materials comparison navigation
     - Responsive feature cards
     - Light and dark themes
 """
@@ -120,7 +121,8 @@ class HomePage(QWidget):
     LENS = 3
     MIRROR = 4
     PRISM = 5
-    SETTINGS = 6
+    OPTICAL_MATERIALS = 6
+    SETTINGS = 7
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -188,7 +190,7 @@ class HomePage(QWidget):
         self.subtitle_label.setWordWrap(True)
 
         self.version_label = QLabel(
-            "Optik v0.4.0 — Prism Optics & Dispersion"
+            "Optik v0.5.0 — Optical Material Comparison"
         )
         self.version_label.setObjectName(
             "homeVersion"
@@ -272,6 +274,17 @@ class HomePage(QWidget):
                 self.PRISM,
                 "△",
             ),
+
+(
+    "Optical Material Comparisons",
+    "Compare refractive indices and wavelength-dependent "
+    "dispersion of optical materials using Cauchy and "
+    "Sellmeier equations.",
+    self.OPTICAL_MATERIALS,
+    "◇",
+),
+
+
         ]
 
         for index, (
@@ -437,7 +450,7 @@ if __name__ == "__main__":
 
     window = HomePage()
     window.setWindowTitle(
-        "Optik v0.4.0 - Home"
+        "Optik v0.5.0 - Home"
     )
     window.resize(1000, 750)
     window.show()
